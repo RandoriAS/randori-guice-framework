@@ -67,8 +67,8 @@ package guice.resolver {
 		}
 		
 		private function resolveParentClassFromDefinition( qualifiedClassName:String, classDefinition:String ):void {
-			//\$Inherit\(net.digitalprimates.service.LabelService,([\w\W]*?)\)
-			var inheritString:String = "\\$Inherit\\(";
+			//\$inherit\(net.digitalprimates.service.LabelService,([\w\W]*?)\)
+			var inheritString:String = "\\$inherit\\(";
 			inheritString += qualifiedClassName;
 			inheritString += ",\\s*(.*?)\\)";
 			var inheritResult:Array = classDefinition.match(inheritString);
