@@ -18,7 +18,7 @@
  */
 package guice.binding.provider {
 	public class AbstractProvider {
-		public function get():Object {
+		public function get():* {
 			return null;
 		}
 
