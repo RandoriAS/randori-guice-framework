@@ -17,7 +17,7 @@
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
 package guice.loader {
-import randori.service.url.URLRewriterBase;
+import guice.loader.URLRewriterBase;
 import randori.webkit.xml.XMLHttpRequest;
 
 	public class SynchronousClassLoader {
