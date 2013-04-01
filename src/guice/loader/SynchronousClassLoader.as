@@ -17,18 +17,21 @@
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
 package guice.loader {
-	import randori.webkit.xml.XMLHttpRequest;
+import guice.loader.URLRewriterBase;
+import randori.webkit.xml.XMLHttpRequest;
 
 	public class SynchronousClassLoader {
 		private var xmlHttpRequest:XMLHttpRequest;
 		private var dynamicClassBaseUrl:String;
+        private var urlRewriter:URLRewriterBase;
 
 		public function loadClass( qualifiedClassName:String ):String {
 			var classNameRegex:RegExp = new RegExp("\\.", "g");
 			var potentialURL:String = qualifiedClassName.replace(classNameRegex, "/");
 			potentialURL = dynamicClassBaseUrl + potentialURL;
 			potentialURL += ".js";
-			
+
+            potentialURL = urlRewriter.rewriteURL( potentialURL );
 			xmlHttpRequest.open("GET", potentialURL, false);
 			xmlHttpRequest.send();
 			
@@ -42,8 +45,9 @@ package guice.loader {
 			return ( xmlHttpRequest.responseText + "\n//@ sourceURL=" + potentialURL );
 		}
 
-		public function SynchronousClassLoader(xmlHttpRequest:randori.webkit.xml.XMLHttpRequest, dynamicClassBaseUrl:String) {
+		public function SynchronousClassLoader(xmlHttpRequest:XMLHttpRequest, urlRewriter:URLRewriterBase, dynamicClassBaseUrl:String) {
 			this.xmlHttpRequest = xmlHttpRequest;
+            this.urlRewriter = urlRewriter;
 			this.dynamicClassBaseUrl = dynamicClassBaseUrl;
 		}
 	}

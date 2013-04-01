@@ -21,16 +21,15 @@ package guice {
 	import guice.binding.utility.BindingHashMap;
 	import guice.loader.SynchronousClassLoader;
 	import guice.resolver.ClassResolver;
-	
+
 	import randori.webkit.xml.XMLHttpRequest;
-	
+
 	public class GuiceJs {
-		private var dynamicClassBaseUrl:String;
+		protected var loader:SynchronousClassLoader;
 		
 		public function createInjector( module:GuiceModule ):Injector {
 			var hashMap:BindingHashMap = new BindingHashMap();
 			var binder:Binder = new Binder( hashMap );
-			var loader:SynchronousClassLoader = new SynchronousClassLoader(new XMLHttpRequest(), dynamicClassBaseUrl );
 			var classResolver:ClassResolver = new ClassResolver( loader );
 			
 			if (module != null) {
@@ -41,7 +40,7 @@ package guice {
 			binder.bind(Injector).toInstance(injector);
 			binder.bind(ClassResolver).toInstance(classResolver);
 			binder.bind(SynchronousClassLoader).toInstance(loader);
-			
+
 			return injector;
 		}		
 
@@ -50,8 +49,8 @@ package guice {
 			injector.configureBinder( module );
 		}
 
-		public function GuiceJs( dynamicClassBaseUrl:String = "generated/" ) {
-			this.dynamicClassBaseUrl = dynamicClassBaseUrl;
+		public function GuiceJs( loader:SynchronousClassLoader ) {
+			this.loader = loader;
 		}
 	}
 }

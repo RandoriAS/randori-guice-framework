@@ -16,13 +16,14 @@
  * 
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
-package guice.binding.provider {
-	public class AbstractProvider {
-		public function get():* {
-			return null;
-		}
+package guice.loader {
 
-		public function AbstractProvider() {
+	public class URLRewriterBase {
+        public function rewriteURL( url:String ):String {
+            return url;
+        }
+
+		public function URLRewriterBase( debugMode:Boolean = false ) {
 		}
 	}
 }
