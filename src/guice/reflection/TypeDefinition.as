@@ -39,7 +39,12 @@ package guice.reflection {
 			var className:String = _type.className;
 			
 			if ( !className ) {
-				throw new Error("Class not does defined a usable className");
+                //this could be native, check the name next
+                className = _type.name;
+
+                if ( !className ) {
+				    throw new Error("Class not does defined a usable className");
+                }
 			}
 			
 			return className;
