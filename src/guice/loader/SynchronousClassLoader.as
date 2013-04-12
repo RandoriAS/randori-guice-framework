@@ -31,8 +31,7 @@ import randori.webkit.xml.XMLHttpRequest;
 			potentialURL = dynamicClassBaseUrl + potentialURL;
 			potentialURL += ".js";
 
-            potentialURL = urlRewriter.rewriteURL( potentialURL );
-			xmlHttpRequest.open("GET", potentialURL, false);
+			xmlHttpRequest.open("GET", urlRewriter.rewriteURL( potentialURL ), false);
 			xmlHttpRequest.send();
 			
 			//Todo Need to handle other status than just 404
