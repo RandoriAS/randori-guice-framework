@@ -16,23 +16,21 @@
  * 
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
-package guice.binding {
-import guice.Injector;
+package guice.module {
+import guice.GuiceModule;
+import guice.binding.Binder;
 
-public class AbstractBinding {
-		public function provide(injector:Injector):Object {
-			return null;
-		}
-		
-		public function getTypeName():String {
-			return null;
-		}
-		
-		public function getScope():int {
-			return -1;
+public class InlineModule extends GuiceModule {
+		private var configFunction:Function;
+
+		override public function configure(binder:Binder):void {
+			if ( configFunction != null )
+				configFunction( binder );
 		}
 
-		public function AbstractBinding() {
+		//Pass a function with the signature f((binder:Binder):void
+		public function InlineModule( configFunction:Function ) {
+			this.configFunction = configFunction;
 		}
 	}
 }

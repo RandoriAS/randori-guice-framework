@@ -17,10 +17,10 @@
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
 package guice {
-	import guice.reflection.TypeDefinition;
-	import guice.resolver.ClassResolver;
+import guice.reflection.TypeDefinition;
+import guice.resolver.ClassResolver;
 
-	public class InjectionClassBuilder {
+public class InjectionClassBuilder {
 		private var injector:Injector;
 		private var classResolver:ClassResolver;
 		

@@ -17,10 +17,10 @@
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
 package guice.binding {
-	import guice.Injector;
-	import guice.reflection.TypeDefinition;
+import guice.Injector;
+import guice.reflection.TypeDefinition;
 
-	public class TypeBinding extends AbstractBinding {
+public class TypeBinding extends AbstractBinding {
 		private var typeDefinition:TypeDefinition;
 		private var dependencyDefinition:TypeDefinition;
 		

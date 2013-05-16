@@ -17,12 +17,11 @@
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
 package guice.binding {
-	import guice.binding.decorator.ContextDecorator;
-	import guice.binding.decorator.SingletonDecorator;
-	import guice.reflection.TypeDefinition;
+import guice.binding.decorator.ContextDecorator;
+import guice.binding.decorator.SingletonDecorator;
+import guice.reflection.TypeDefinition;
 
-	
-	public class BindingFactory {
+public class BindingFactory {
 		private var binder:Binder; 
 		private var typeDefinition:TypeDefinition;
 		private var scope:int;

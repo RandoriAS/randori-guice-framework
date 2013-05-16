@@ -17,14 +17,12 @@
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
 package guice {
-	import guice.binding.Binder;
-	import guice.binding.utility.BindingHashMap;
-	import guice.loader.SynchronousClassLoader;
-	import guice.resolver.ClassResolver;
+import guice.binding.Binder;
+import guice.binding.utility.BindingHashMap;
+import guice.loader.SynchronousClassLoader;
+import guice.resolver.ClassResolver;
 
-	import randori.webkit.xml.XMLHttpRequest;
-
-	public class GuiceJs {
+public class GuiceJs {
 		protected var loader:SynchronousClassLoader;
 		
 		public function createInjector( module:GuiceModule ):Injector {

@@ -17,12 +17,12 @@
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
 package guice.resolver {
-	import guice.loader.SynchronousClassLoader;
-	import guice.reflection.TypeDefinition;
-	
-	import randori.webkit.page.Window;
+import guice.loader.SynchronousClassLoader;
+import guice.reflection.TypeDefinition;
 
-	public class ClassResolver {
+import randori.webkit.page.Window;
+
+public class ClassResolver {
 		private var loader:SynchronousClassLoader;
 		
 		public function resolveClassName(qualifiedClassName:String):TypeDefinition {

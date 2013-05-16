@@ -17,10 +17,10 @@
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
 package guice.binding {
-	import guice.binding.utility.BindingHashMap;
-	import guice.reflection.TypeDefinition;
+import guice.binding.utility.BindingHashMap;
+import guice.reflection.TypeDefinition;
 
-	public class Binder {
+public class Binder {
 		private var hashMap:BindingHashMap;
 
 		public function getBinding( typeDefinition:TypeDefinition ):AbstractBinding {
