@@ -33,7 +33,7 @@ public class TypeBinding extends AbstractBinding {
 		}
 		
 		override public function provide(injector:Injector):Object {
-			return injector.buildClass(dependencyDefinition);
+			return injector.buildClass(dependencyDefinition, {} );
 		}		
 
 		public function TypeBinding(typeDefinition:TypeDefinition, dependencyDefinition:TypeDefinition) {

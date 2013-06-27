@@ -25,67 +25,133 @@ import randori.webkit.page.Window;
 public class ClassResolver {
 		private var loader:SynchronousClassLoader;
 		
-		public function resolveClassName(qualifiedClassName:String):TypeDefinition {
+		public function resolveClassName(qualifiedClassName:String, watcher:Object):TypeDefinition {
 			var type:* = findDefinition(qualifiedClassName);
-			
+
 			if (type == null) {
+				if ( watcher[ qualifiedClassName ] ) {
+					throw new Error("Circular Reference While Resolving Name : " + qualifiedClassName );
+				}
+
+				watcher[ qualifiedClassName ] = true;
+
 				var classDefinition:String = loader.loadClass(qualifiedClassName);
-				
+
 				//Before we load it into memory, check on the super class and see if we need to load *that*
 				//into memory. We may *NOT* have an inherit if we dont inherit from anything, that is just fine
-				resolveParentClassFromDefinition(qualifiedClassName,classDefinition);
-				
-				//Load the newly found class memory
-				addDefinition(classDefinition);
-				
-				//Get a reference to the newly added type
+				resolveParentClassFromDefinition(qualifiedClassName,classDefinition, watcher);
+
+				addDefinition( getStubDefinition(qualifiedClassName, classDefinition) );
+
+				//Get a reference to the newly added stub
 				type = findDefinition(qualifiedClassName);
-				
+
 				if (type == null) {
 					//This alert shouldnt be here, we should figure out a way to get it to the UI level
 					//HtmlContext.alert(qualifiedClassName + " does not contain required injection information ");
 					throw new Error(qualifiedClassName + " does not contain required injection information ");
 				}
-				
+
 				var td:TypeDefinition = new TypeDefinition(type);
 
 				if (!td.builtIn) {
-					//Finally, resolve any classes it references in its own code execution
-					resolveClassDependencies(td);
+					//Resolve any classes it references in its own code execution
+					resolveStaticDependencies(td, watcher );
 				}
+
+				delete watcher[ qualifiedClassName ];
+				type.pending = false;
+				//Now, Load the WHOLE class into memory... we did this all for statics
+				addDefinition(classDefinition);
+
+				//Get a reference to the newly added type
+				type = findDefinition(qualifiedClassName);
+				td = new TypeDefinition(type);
+
+				if (!td.builtIn) {
+					//Resolve any classes it references in its own code execution
+					resolveRuntimeDependencies(td, watcher );
+				}
+			} else if ( type.pending == true ) {
+				throw new Error("Circular Reference While Resolving Partial Class : " + qualifiedClassName );
 			}
-			
+
 			return new TypeDefinition(type);
 		}
-		
-		private function resolveClassDependencies(type:TypeDefinition):void {
-			var classDependencies:Vector.<String> = type.getClassDependencies();
-			
+
+		private function resolveStaticDependencies(type:TypeDefinition, watcher:Object ):void {
+			var classDependencies:Vector.<String> = type.getStaticDependencies();
+
 			for ( var i:int=0; i<classDependencies.length; i++) {
-				resolveClassName(classDependencies[i]);
+				resolveClassName(classDependencies[i], watcher );
 			}
 		}
-		
-		private function resolveParentClassFromDefinition( qualifiedClassName:String, classDefinition:String ):void {
+
+		private function resolveRuntimeDependencies(type:TypeDefinition, watcher:Object ):void {
+			var classDependencies:Vector.<String> = type.getRuntimeDependencies();
+
+			for ( var i:int=0; i<classDependencies.length; i++) {
+				resolveClassName(classDependencies[i], watcher );
+			}
+		}
+
+		private function getStubDefinition( qualifiedClassName:String, classDefinition:String ):String {
+			var stubDefinition:String = "";
+			var escapedClassName:String = qualifiedClassName.replace(".", "\." );
+
+			var preambleExpression:String = "(^[\\W\\w]+?)" + escapedClassName;
+			var classNameExpression:String = escapedClassName + ".className = [\\w\\W]+?\\\";";
+			var dependenciesExpression:String = escapedClassName + ".getClassDependencies[\\w\\W]+?};";
+
+			var preambleResult:Array = classDefinition.match(preambleExpression);
+			var classNameResult:Array = classDefinition.match(classNameExpression);
+			var dependencyResult:Array = classDefinition.match(dependenciesExpression);
+
+			if (preambleResult != null && preambleResult.length > 1 ) {
+				stubDefinition += preambleResult[1];
+				stubDefinition += "\n";
+			}
+
+			//Add a constructor
+			stubDefinition += ( qualifiedClassName + " = function() {}\n" );
+			//Add a incomplete flag
+			stubDefinition += ( qualifiedClassName + ".pending = true;\n" );
+
+			//Add the classname
+			if (classNameResult != null) {
+				stubDefinition += classNameResult[0];
+				stubDefinition += "\n";
+			}
+
+			//Add the dependencies
+			if (dependencyResult != null) {
+				stubDefinition += dependencyResult[0];
+				stubDefinition += "\n";
+			}
+
+			return stubDefinition;
+		}
+
+		private function resolveParentClassFromDefinition( qualifiedClassName:String, classDefinition:String, watcher:Object ):void {
 			//\$inherit\(net.digitalprimates.service.LabelService,([\w\W]*?)\)
 			var inheritString:String = "\\$inherit\\(";
 			inheritString += qualifiedClassName;
 			inheritString += ",\\s*(.*?)\\)";
 			var inheritResult:Array = classDefinition.match(inheritString);
-			
+
 			//Do we inherit from anything?
 			if (inheritResult != null) {
 				//Resolve the parent class first
-				resolveClassName(inheritResult[1]);
+				resolveClassName(inheritResult[1],watcher);
 			}
 		}
-		
+
 		private function findDefinition(qualifiedClassName:String):Object {
 			var nextLevel:* = Window.window;
 			var failed:Boolean = false;
-			
+
 			var path:Array = qualifiedClassName.split('.');
-			
+
 			for (var i:int = 0; i < path.length; i++) {
 				nextLevel = nextLevel[path[i]];
 				if (!nextLevel) {
@@ -93,18 +159,18 @@ public class ClassResolver {
 					break;
 				}
 			}
-			
+
 			if (failed) {
 				return null;
 			}
-			
+
 			return nextLevel;
 		}
-		
+
 		[JavaScriptCode(file="_addDefinition.js")]
 		private function addDefinition( definitionText:String ):void {
 		}
-		
+
 		public function ClassResolver( loader:SynchronousClassLoader ) {
 			this.loader = loader;
 		}

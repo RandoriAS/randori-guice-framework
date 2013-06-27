@@ -18,23 +18,23 @@
  */
 package guice
 {
-	import guice.binding.AbstractBinding;
-	import guice.binding.Binder;
-	import guice.reflection.InjectionPoint;
-	import guice.reflection.MethodInjectionPoint;
-	import guice.reflection.TypeDefinition;
-	import guice.resolver.ClassResolver;
+import guice.binding.AbstractBinding;
+import guice.binding.Binder;
+import guice.reflection.InjectionPoint;
+import guice.reflection.MethodInjectionPoint;
+import guice.reflection.TypeDefinition;
+import guice.resolver.ClassResolver;
 
-	public class Injector {
+public class Injector {
 		protected var binder:Binder;
 		protected var classResolver:ClassResolver;
 
 		public function getInstance( dependency:Class ):Object {
-			return resolveDependency( new TypeDefinition(dependency) );
+			return resolveDependency( new TypeDefinition(dependency), {} );
 		}
 
-		public function getInstanceByDefinition( dependencyTypeDefinition:TypeDefinition ):Object {
-			return resolveDependency(dependencyTypeDefinition);
+		public function getInstanceByDefinition( dependencyTypeDefinition:TypeDefinition ):* {
+			return resolveDependency(dependencyTypeDefinition, {} );
 		}
 		
 		internal function getBinding( typeDefinition:TypeDefinition ):AbstractBinding  {
@@ -43,20 +43,24 @@ package guice
 		
 		//Entry point for TypeAbstractBinding to ask for a class.... 
 		//This method does so without trying to resolve the class first, which is important if we are called from within a resolution
-		public function buildClass(typeDefinition:TypeDefinition):Object {
+		public function buildClass(typeDefinition:TypeDefinition, watcher:Object ):* {
 			var instance:Object;
 			
 			if (typeDefinition.builtIn) {
 				instance = typeDefinition.constructorApply(null);
 			} else {
+				watcher[ typeDefinition.getClassName() ] = true;
+
 				var constructorPoints:Vector.<InjectionPoint> = typeDefinition.getConstructorParameters();
-				instance = buildFromInjectionInfo(typeDefinition, constructorPoints);
+				instance = buildFromInjectionInfo(typeDefinition, constructorPoints, watcher );
 				
 				var fieldPoints:Vector.<InjectionPoint> = typeDefinition.getInjectionFields();
-				injectMemberPropertiesFromInjectionInfo(instance, fieldPoints);
+				injectMemberPropertiesFromInjectionInfo(instance, fieldPoints, watcher );
 				
 				var methodPoints:Vector.<MethodInjectionPoint> = typeDefinition.getInjectionMethods();
-				injectMembersMethodsFromInjectionInfo(instance, methodPoints);
+				injectMembersMethodsFromInjectionInfo(instance, methodPoints, watcher);
+
+				delete watcher[ typeDefinition.getClassName() ];
 			}
 			
 			return instance;
@@ -66,31 +70,32 @@ package guice
 			var constructor:* = instance.constructor;
 			
 			var typeDefinition:TypeDefinition = new TypeDefinition(constructor);
-			
+
+			var watcher:Object = new Object();
 			var fieldPoints:Vector.<InjectionPoint> = typeDefinition.getInjectionFields();
-			injectMemberPropertiesFromInjectionInfo(instance, fieldPoints);
+			injectMemberPropertiesFromInjectionInfo(instance, fieldPoints, watcher);
 			
 			var methodPoints:Vector.<MethodInjectionPoint> = typeDefinition.getInjectionMethods();
-			injectMembersMethodsFromInjectionInfo(instance, methodPoints);
+			injectMembersMethodsFromInjectionInfo(instance, methodPoints, watcher);
 		}
 		
-		private function buildFromInjectionInfo(dependencyTypeDefinition:TypeDefinition, constructorPoints:Vector.<InjectionPoint>):Object {
+		private function buildFromInjectionInfo(dependencyTypeDefinition:TypeDefinition, constructorPoints:Vector.<InjectionPoint>, watcher:Object ):* {
 			var args:Array = new Array();
 			
 			for (var i:int = 0; i < constructorPoints.length; i++) {
-				args[i] = resolveDependency(classResolver.resolveClassName(constructorPoints[i].t));
+				args[i] = resolveDependency(classResolver.resolveClassName(constructorPoints[i].t, watcher), watcher);
 			}
 			
 			return dependencyTypeDefinition.constructorApply(args);;
 		}
 		
-		private function injectMemberPropertiesFromInjectionInfo(instance:*, fieldPoints:Vector.<InjectionPoint>):void {
+		private function injectMemberPropertiesFromInjectionInfo(instance:*, fieldPoints:Vector.<InjectionPoint>, watcher:Object):void {
 			for (var i:int = 0; i < fieldPoints.length; i++) {
-				instance[fieldPoints[i].n] = resolveDependency(classResolver.resolveClassName(fieldPoints[i].t));
+				instance[fieldPoints[i].n] = resolveDependency(classResolver.resolveClassName(fieldPoints[i].t, watcher), watcher);
 			}
 		}
 		
-		private function injectMembersMethodsFromInjectionInfo(instance:*, methodPoints:Vector.<MethodInjectionPoint>):void {
+		private function injectMembersMethodsFromInjectionInfo(instance:*, methodPoints:Vector.<MethodInjectionPoint>, watcher:Object ):void {
 			
 			for (var i:int = 0; i < methodPoints.length; i++) {
 				var methodPoint:MethodInjectionPoint = methodPoints[i];
@@ -98,7 +103,7 @@ package guice
 				
 				for (var j:int = 0; j < methodPoint.p.length; j++) {
 					var parameterPoint:InjectionPoint = methodPoint.p[j];
-					args[j] = resolveDependency(classResolver.resolveClassName(parameterPoint.t));
+					args[j] = resolveDependency(classResolver.resolveClassName(parameterPoint.t,watcher),watcher);
 				}
 				
 				var action:Function = instance[methodPoints[i].n];
@@ -106,9 +111,13 @@ package guice
 			}
 		}		
 		
-		private function resolveDependency(typeDefinition:TypeDefinition):Object {
+		private function resolveDependency(typeDefinition:TypeDefinition, watcher:Object ):Object {
 			var abstractBinding:AbstractBinding = null;
-			
+
+			if ( watcher[ typeDefinition.getClassName() ] ) {
+				throw new Error("Circular Reference While Resolving : " + typeDefinition.getClassName() );
+			}
+
 			if ( !typeDefinition.builtIn ) {
 				abstractBinding = getBinding(typeDefinition);
 			}
@@ -118,7 +127,7 @@ package guice
 			if (abstractBinding != null) {
 				instance = abstractBinding.provide(this);
 			} else {
-				instance = buildClass(typeDefinition);
+				instance = buildClass(typeDefinition, watcher);
 			}
 			
 			return instance;

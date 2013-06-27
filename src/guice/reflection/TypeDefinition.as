@@ -58,12 +58,26 @@ package guice.reflection {
 			}
 			
 			return className;
-		}		
-
-		public function getClassDependencies():Vector.<String> {
-			return this.type.getClassDependencies();
 		}
-		
+
+		public function getStaticDependencies():Vector.<String> {
+			if ( this.type.getStaticDependencies ) {
+				return this.type.getClassDependencies();
+			}
+
+			return new Vector.<String>();
+		}
+
+		public function getRuntimeDependencies():Vector.<String> {
+			if ( this.type.getRuntimeDependencies ) {
+				return this.type.getRuntimeDependencies();
+			} else if ( this.type.getClassDependencies ) {
+				return this.type.getClassDependencies();
+			}
+
+			return new Vector.<String>();
+		}
+
 		private function injectionPoints(injectionType:int):Vector.<InjectionPoint> {
 			return this.type.injectionPoints(injectionType) as Vector.<InjectionPoint>;
 		}		
@@ -110,7 +124,7 @@ package guice.reflection {
 			
 			//We add data to all of our Types. So, if this is not one of our types, then we assume it is a built in or
 			//externally defined. We dont want to spend much time trying to parse those
-			if ( type.injectionPoints == null ) {
+			if ( type.className == null ) {
 				this._builtIn = true;
 			}			
 		}

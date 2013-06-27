@@ -25,7 +25,7 @@ public class InjectionClassBuilder {
 		private var classResolver:ClassResolver;
 		
 		public function buildClass( className:String ):Object {
-			var type:TypeDefinition = classResolver.resolveClassName(className);
+			var type:TypeDefinition = classResolver.resolveClassName(className, new Object());
 			
 			return injector.getInstanceByDefinition(type);
 		}
