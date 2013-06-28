@@ -17,10 +17,9 @@
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
 package guice.loader {
-import guice.loader.URLRewriterBase;
 import randori.webkit.xml.XMLHttpRequest;
 
-	public class SynchronousClassLoader {
+public class SynchronousClassLoader {
 		private var xmlHttpRequest:XMLHttpRequest;
 		private var dynamicClassBaseUrl:String;
         private var urlRewriter:URLRewriterBase;

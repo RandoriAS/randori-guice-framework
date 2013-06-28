@@ -25,21 +25,21 @@ import randori.webkit.page.Window;
 public class ClassResolver {
 		private var loader:SynchronousClassLoader;
 		
-		public function resolveClassName(qualifiedClassName:String, watcher:Object):TypeDefinition {
+		public function resolveClassName(qualifiedClassName:String, circularDependencyMap:CircularDependencyMap):TypeDefinition {
 			var type:* = findDefinition(qualifiedClassName);
 
 			if (type == null) {
-				if ( watcher[ qualifiedClassName ] ) {
+				if ( circularDependencyMap[ qualifiedClassName ] ) {
 					throw new Error("Circular Reference While Resolving Name : " + qualifiedClassName );
 				}
 
-				watcher[ qualifiedClassName ] = true;
+				circularDependencyMap[ qualifiedClassName ] = true;
 
 				var classDefinition:String = loader.loadClass(qualifiedClassName);
 
 				//Before we load it into memory, check on the super class and see if we need to load *that*
 				//into memory. We may *NOT* have an inherit if we dont inherit from anything, that is just fine
-				resolveParentClassFromDefinition(qualifiedClassName,classDefinition, watcher);
+				resolveParentClassFromDefinition(qualifiedClassName,classDefinition, circularDependencyMap);
 
 				addDefinition( getStubDefinition(qualifiedClassName, classDefinition) );
 
@@ -56,10 +56,10 @@ public class ClassResolver {
 
 				if (!td.builtIn) {
 					//Resolve any classes it references in its own code execution
-					resolveStaticDependencies(td, watcher );
+					resolveStaticDependencies(td, circularDependencyMap );
 				}
 
-				delete watcher[ qualifiedClassName ];
+				delete circularDependencyMap[ qualifiedClassName ];
 				type.pending = false;
 				//Now, Load the WHOLE class into memory... we did this all for statics
 				addDefinition(classDefinition);
@@ -70,7 +70,7 @@ public class ClassResolver {
 
 				if (!td.builtIn) {
 					//Resolve any classes it references in its own code execution
-					resolveRuntimeDependencies(td, watcher );
+					resolveRuntimeDependencies(td, circularDependencyMap );
 				}
 			} else if ( type.pending == true ) {
 				throw new Error("Circular Reference While Resolving Partial Class : " + qualifiedClassName );
@@ -79,19 +79,19 @@ public class ClassResolver {
 			return new TypeDefinition(type);
 		}
 
-		private function resolveStaticDependencies(type:TypeDefinition, watcher:Object ):void {
+		private function resolveStaticDependencies(type:TypeDefinition, circularDependencyMap:CircularDependencyMap ):void {
 			var classDependencies:Vector.<String> = type.getStaticDependencies();
 
 			for ( var i:int=0; i<classDependencies.length; i++) {
-				resolveClassName(classDependencies[i], watcher );
+				resolveClassName(classDependencies[i], circularDependencyMap );
 			}
 		}
 
-		private function resolveRuntimeDependencies(type:TypeDefinition, watcher:Object ):void {
+		private function resolveRuntimeDependencies(type:TypeDefinition, circularDependencyMap:CircularDependencyMap ):void {
 			var classDependencies:Vector.<String> = type.getRuntimeDependencies();
 
 			for ( var i:int=0; i<classDependencies.length; i++) {
-				resolveClassName(classDependencies[i], watcher );
+				resolveClassName(classDependencies[i], circularDependencyMap );
 			}
 		}
 
@@ -132,7 +132,7 @@ public class ClassResolver {
 			return stubDefinition;
 		}
 
-		private function resolveParentClassFromDefinition( qualifiedClassName:String, classDefinition:String, watcher:Object ):void {
+		private function resolveParentClassFromDefinition( qualifiedClassName:String, classDefinition:String, circularDependencyMap:CircularDependencyMap ):void {
 			//\$inherit\(net.digitalprimates.service.LabelService,([\w\W]*?)\)
 			var inheritString:String = "\\$inherit\\(";
 			inheritString += qualifiedClassName;
@@ -142,7 +142,7 @@ public class ClassResolver {
 			//Do we inherit from anything?
 			if (inheritResult != null) {
 				//Resolve the parent class first
-				resolveClassName(inheritResult[1],watcher);
+				resolveClassName(inheritResult[1],circularDependencyMap);
 			}
 		}
 

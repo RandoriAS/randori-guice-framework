@@ -19,6 +19,7 @@
 package guice.binding {
 import guice.Injector;
 import guice.reflection.TypeDefinition;
+import guice.resolver.CircularDependencyMap;
 
 public class TypeBinding extends AbstractBinding {
 		private var typeDefinition:TypeDefinition;
@@ -33,7 +34,7 @@ public class TypeBinding extends AbstractBinding {
 		}
 		
 		override public function provide(injector:Injector):Object {
-			return injector.buildClass(dependencyDefinition, {} );
+			return injector.buildClass(dependencyDefinition, new CircularDependencyMap() );
 		}		
 
 		public function TypeBinding(typeDefinition:TypeDefinition, dependencyDefinition:TypeDefinition) {
