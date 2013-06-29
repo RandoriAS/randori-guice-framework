@@ -18,9 +18,8 @@
 		<path location="${basedir}" />
 	</pathconvert>
 
-	<property file="${basedir_clean}/build/build.properties" />
-	<property name="build.output" value="D:\randori-sdk-swcs\" />
-	<property name="randori.compiler.path" value="D:\randori-compiler\" />
+	<property name="build.output" value="D:/randori-sdk-swcs/" />
+	<property name="randori.compiler.path" value="D:/randori-compiler/" />
 	
 	<target name="main">
 		<java classname="randori.compiler.clients.Randori"
