@@ -23,16 +23,26 @@ import guice.reflection.TypeDefinition;
 import randori.webkit.page.Window;
 
 public class ClassResolver {
-		private var loader:SynchronousClassLoader;
-		
-		public function resolveClassName(qualifiedClassName:String, circularDependencyMap:CircularDependencyMap):TypeDefinition {
+	private var loader:SynchronousClassLoader;
+
+	public function resolveClassName(qualifiedClassName:String, circularDependencyMap:CircularDependencyMap):TypeDefinition {
+		return recursivelyResolve( qualifiedClassName, circularDependencyMap );
+	}
+
+	public function resolveContextName(qualifiedClassName:String, circularDependencyMap:CircularDependencyMap):TypeDefinition {
+		return recursivelyResolve( qualifiedClassName, circularDependencyMap, true );
+	}
+
+	private function recursivelyResolve(qualifiedClassName:String, circularDependencyMap:CircularDependencyMap, runtimeAsProxies:Boolean = false ):TypeDefinition {
 			var type:* = findDefinition(qualifiedClassName);
 
-			if (type == null) {
+			if (type == null || type.proxy ) {
 				if ( circularDependencyMap[ qualifiedClassName ] ) {
 					throw new Error("Circular Reference While Resolving Name : " + qualifiedClassName );
 				}
 
+				//Add this to a circular dependency map so we can ensure we don't try to resolve this
+				//class again in this stack
 				circularDependencyMap[ qualifiedClassName ] = true;
 
 				var classDefinition:String = loader.loadClass(qualifiedClassName);
@@ -41,15 +51,16 @@ public class ClassResolver {
 				//into memory. We may *NOT* have an inherit if we dont inherit from anything, that is just fine
 				resolveParentClassFromDefinition(qualifiedClassName,classDefinition, circularDependencyMap);
 
+				//Now, add a stub of the definition into memory. We do this because this 'class' could
+				//have static requirements meaning that it could require other loading as it enters memory
+				//by creating a stub, we can do deal with that first
 				addDefinition( getStubDefinition(qualifiedClassName, classDefinition) );
 
 				//Get a reference to the newly added stub
 				type = findDefinition(qualifiedClassName);
 
 				if (type == null) {
-					//This alert shouldnt be here, we should figure out a way to get it to the UI level
-					//HtmlContext.alert(qualifiedClassName + " does not contain required injection information ");
-					throw new Error(qualifiedClassName + " does not contain required injection information ");
+					throw new Error(qualifiedClassName + " was not built with the Randori compiler or has not been decorated prior to injection ");
 				}
 
 				var td:TypeDefinition = new TypeDefinition(type);
@@ -59,8 +70,10 @@ public class ClassResolver {
 					resolveStaticDependencies(td, circularDependencyMap );
 				}
 
+				//Remove from the circular dependency map, we are all done dealing with this one
 				delete circularDependencyMap[ qualifiedClassName ];
 				type.pending = false;
+
 				//Now, Load the WHOLE class into memory... we did this all for statics
 				addDefinition(classDefinition);
 
@@ -68,9 +81,14 @@ public class ClassResolver {
 				type = findDefinition(qualifiedClassName);
 				td = new TypeDefinition(type);
 
-				if (!td.builtIn) {
-					//Resolve any classes it references in its own code execution
-					resolveRuntimeDependencies(td, circularDependencyMap );
+				if (!td.builtIn ) {
+					if ( runtimeAsProxies ) {
+						//Resolve any classes it references in its own code execution
+						resolveRuntimeDependencies(td, circularDependencyMap );
+					}  else {
+						//Resolve any classes it references in its own code execution
+						resolveRuntimeDependencies(td, circularDependencyMap );
+					}
 				}
 			} else if ( type.pending == true ) {
 				throw new Error("Circular Reference While Resolving Partial Class : " + qualifiedClassName );
@@ -83,7 +101,7 @@ public class ClassResolver {
 			var classDependencies:Vector.<String> = type.getStaticDependencies();
 
 			for ( var i:int=0; i<classDependencies.length; i++) {
-				resolveClassName(classDependencies[i], circularDependencyMap );
+				recursivelyResolve(classDependencies[i], circularDependencyMap );
 			}
 		}
 
@@ -91,7 +109,7 @@ public class ClassResolver {
 			var classDependencies:Vector.<String> = type.getRuntimeDependencies();
 
 			for ( var i:int=0; i<classDependencies.length; i++) {
-				resolveClassName(classDependencies[i], circularDependencyMap );
+				recursivelyResolve(classDependencies[i], circularDependencyMap );
 			}
 		}
 
@@ -142,7 +160,7 @@ public class ClassResolver {
 			//Do we inherit from anything?
 			if (inheritResult != null) {
 				//Resolve the parent class first
-				resolveClassName(inheritResult[1],circularDependencyMap);
+				recursivelyResolve(inheritResult[1],circularDependencyMap);
 			}
 		}
 

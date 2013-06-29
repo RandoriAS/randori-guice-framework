@@ -24,7 +24,13 @@ import guice.resolver.ClassResolver;
 public class InjectionClassBuilder {
 		private var injector:Injector;
 		private var classResolver:ClassResolver;
-		
+
+		public function buildContext( className:String ):Object {
+			var type:TypeDefinition = classResolver.resolveClassName(className, new CircularDependencyMap());
+
+			return injector.getInstanceByDefinition(type);
+		}
+
 		public function buildClass( className:String ):Object {
 			var type:TypeDefinition = classResolver.resolveClassName(className, new CircularDependencyMap());
 			
