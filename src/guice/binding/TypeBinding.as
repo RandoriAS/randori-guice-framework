@@ -20,26 +20,40 @@ package guice.binding {
 import guice.Injector;
 import guice.reflection.TypeDefinition;
 import guice.resolver.CircularDependencyMap;
+import guice.resolver.ClassResolver;
 
 public class TypeBinding extends AbstractBinding {
-		private var typeDefinition:TypeDefinition;
-		private var dependencyDefinition:TypeDefinition;
+	private var typeDefinition:TypeDefinition;
+	private var dependencyDefinition:TypeDefinition;
+	private var classResolver:ClassResolver;
+	private var isProxiedDefinition:Boolean = false;
 		
-		override public function getTypeName():String {
-			return typeDefinition.getClassName();
-		}
-		
-		override public function getScope():int {
-			return Scope.Instance;
-		}
-		
-		override public function provide(injector:Injector):Object {
-			return injector.buildClass(dependencyDefinition, new CircularDependencyMap() );
-		}		
+	override public function getTypeName():String {
+		return typeDefinition.getClassName();
+	}
 
-		public function TypeBinding(typeDefinition:TypeDefinition, dependencyDefinition:TypeDefinition) {
-			this.typeDefinition = typeDefinition;
-			this.dependencyDefinition = dependencyDefinition;
+	override public function getScope():int {
+		return Scope.Instance;
+	}
+
+	override public function provide(injector:Injector):Object {
+		//This one is temporary to get us up and going with interfaces... we will deal with it later
+
+		if ( isProxiedDefinition ) {
+			this.dependencyDefinition = classResolver.resolveProxy( this.dependencyDefinition, new CircularDependencyMap() );
+		}
+
+		return injector.buildClass( dependencyDefinition, new CircularDependencyMap() );
+	}
+
+	public function TypeBinding(typeDefinition:TypeDefinition, dependencyDefinition:TypeDefinition, classResolver:ClassResolver ) {
+		this.typeDefinition = typeDefinition;
+		this.dependencyDefinition = dependencyDefinition;
+		this.classResolver = classResolver;
+
+		if ( dependencyDefinition.isProxy ) {
+			isProxiedDefinition = true;
 		}
 	}
+}
 }

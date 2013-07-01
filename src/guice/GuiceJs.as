@@ -20,35 +20,38 @@ package guice {
 import guice.binding.Binder;
 import guice.binding.utility.BindingHashMap;
 import guice.loader.SynchronousClassLoader;
+import guice.reflection.TypeDefinitionFactory;
 import guice.resolver.ClassResolver;
 
 public class GuiceJs {
-		protected var loader:SynchronousClassLoader;
-		
-		public function createInjector( module:GuiceModule ):Injector {
-			var hashMap:BindingHashMap = new BindingHashMap();
-			var binder:Binder = new Binder( hashMap );
-			var classResolver:ClassResolver = new ClassResolver( loader );
-			
-			if (module != null) {
-				module.configure(binder);
-			}
-			
-			var injector:Injector = new Injector(binder, classResolver);
-			binder.bind(Injector).toInstance(injector);
-			binder.bind(ClassResolver).toInstance(classResolver);
-			binder.bind(SynchronousClassLoader).toInstance(loader);
+	protected var loader:SynchronousClassLoader;
 
-			return injector;
-		}		
+	public function createInjector( module:GuiceModule ):Injector {
+		var factory:TypeDefinitionFactory = new TypeDefinitionFactory();
+		var hashMap:BindingHashMap = new BindingHashMap();
+		var classResolver:ClassResolver = new ClassResolver( loader, factory );
+		var binder:Binder = new Binder( hashMap, factory, classResolver );
 
-		//This is a little evil and I am not sure I like it, but it is the best way we can provide bindings to a child injector for now.
-		public function configureInjector( injector:ChildInjector, module:GuiceModule ):void {
-			injector.configureBinder( module );
+		if (module != null) {
+			module.configure(binder);
 		}
 
-		public function GuiceJs( loader:SynchronousClassLoader ) {
-			this.loader = loader;
-		}
+		var injector:Injector = new Injector(binder, classResolver, factory );
+		binder.bind(Injector).toInstance(injector);
+		binder.bind(TypeDefinitionFactory).toInstance(factory);
+		binder.bind(ClassResolver).toInstance(classResolver);
+		binder.bind(SynchronousClassLoader).toInstance(loader);
+
+		return injector;
 	}
+
+	//This is a little evil and I am not sure I like it, but it is the best way we can provide bindings to a child injector for now.
+	public function configureInjector( injector:ChildInjector, module:GuiceModule ):void {
+		injector.configureBinder( module );
+	}
+
+	public function GuiceJs( loader:SynchronousClassLoader ) {
+		this.loader = loader;
+	}
+}
 }

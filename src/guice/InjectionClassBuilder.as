@@ -18,28 +18,38 @@
  */
 package guice {
 import guice.reflection.TypeDefinition;
+import guice.reflection.TypeDefinitionFactory;
 import guice.resolver.CircularDependencyMap;
 import guice.resolver.ClassResolver;
 
 public class InjectionClassBuilder {
-		private var injector:Injector;
-		private var classResolver:ClassResolver;
+	private var injector:Injector;
+	private var classResolver:ClassResolver;
+	private var factory:TypeDefinitionFactory;
 
-		public function buildContext( className:String ):Object {
-			var type:TypeDefinition = classResolver.resolveClassName(className, new CircularDependencyMap());
+	public function buildContext( className:String ):Object {
+		var td:TypeDefinition = classResolver.resolveClassName(className, new CircularDependencyMap(), false );
 
-			return injector.getInstanceByDefinition(type);
+		var classDependencies:Vector.<String> = td.getRuntimeDependencies();
+
+		for ( var i:int=0; i<classDependencies.length; i++) {
+			//this will either find the definition or force a proxy to be created for each
+			factory.getDefinitionForName( classDependencies[i] );
 		}
 
-		public function buildClass( className:String ):Object {
-			var type:TypeDefinition = classResolver.resolveClassName(className, new CircularDependencyMap());
-			
-			return injector.getInstanceByDefinition(type);
-		}
-
-		public function InjectionClassBuilder(injector:Injector, classResolver:ClassResolver) {
-			this.injector = injector;
-			this.classResolver = classResolver;
-		}
+		return injector.getInstanceByDefinition( td );
 	}
+
+	public function buildClass( className:String ):Object {
+		var type:TypeDefinition = classResolver.resolveClassName( className, new CircularDependencyMap() );
+
+		return injector.getInstanceByDefinition(type);
+	}
+
+	public function InjectionClassBuilder(injector:Injector, classResolver:ClassResolver, factory:TypeDefinitionFactory) {
+		this.injector = injector;
+		this.classResolver = classResolver;
+		this.factory = factory;
+	}
+}
 }

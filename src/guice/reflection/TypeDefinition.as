@@ -26,13 +26,21 @@ package guice.reflection {
 		
 		private var _type:*;
 		private var _builtIn:Boolean = false;
-		
+
 		public function get type():* {
 			return _type;
 		}
 		
 		public function get builtIn():Boolean {
 			return _builtIn;
+		}
+
+		public function get isProxy():Boolean {
+			return _type.isProxy;
+		}
+
+		public function get pending():Boolean {
+			return _type.pending;
 		}
 
 		public function getClassName():String {
