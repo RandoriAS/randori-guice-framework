@@ -18,9 +18,8 @@
 		<path location="${basedir}" />
 	</pathconvert>
 
-	<property file="${basedir_clean}/build/build.properties" />
-	<property name="build.output" value="D:\randori-sdk-swcs\" />
-	<property name="randori.compiler.path" value="D:\randori-compiler\" />
+	<property name="build.output" value="D:/randori-sdk-swcs/" />
+	<property name="randori.compiler.path" value="D:/randori-compiler/" />
 	
 	<target name="main">
 		<java classname="randori.compiler.clients.Randori"
@@ -31,9 +30,6 @@
 			 <arg value="-bundle-libraries=randori-guice-framework"/>
 			 <arg value="-output=${build.output}randori-guice.rbl"/>
 			 <arg value="-bundle-source-path=randori-guice-framework,${basedir_clean}\src"/>
-			 <arg value="-bundle-library-path=randori-guice-framework,${build.output}builtin.swc"/>
-			 <arg value="-bundle-library-path=randori-guice-framework,${build.output}JQuery.swc"/>
-			 <arg value="-bundle-library-path=randori-guice-framework,${build.output}HTMLCoreLib.swc"/>
 			 <classpath>
 			   <pathelement location="${randori.compiler.path}randori.jar"/>
 			 </classpath>
