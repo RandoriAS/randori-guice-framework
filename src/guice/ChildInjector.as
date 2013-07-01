@@ -17,12 +17,13 @@
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
 package guice {
-	import guice.binding.AbstractBinding;
-	import guice.binding.Binder;
-	import guice.reflection.TypeDefinition;
-	import guice.resolver.ClassResolver;
-	
-	public class ChildInjector extends Injector {
+import guice.binding.AbstractBinding;
+import guice.binding.Binder;
+import guice.reflection.TypeDefinition;
+import guice.reflection.TypeDefinitionFactory;
+import guice.resolver.ClassResolver;
+
+public class ChildInjector extends Injector {
 		private var parentInjector:Injector;
 
 		//Used in a child injector situation to configure a binder with a module at runtime
@@ -44,8 +45,8 @@ package guice {
 			return abstractBinding;
 		}
 		
-		public function ChildInjector(binder:Binder, classResolver:ClassResolver, parentInjector:Injector) {
-			super(binder, classResolver);
+		public function ChildInjector(binder:Binder, classResolver:ClassResolver, factory:TypeDefinitionFactory, parentInjector:Injector) {
+			super(binder, classResolver, factory);
 			this.parentInjector = parentInjector;
 			
 			//Child injectors set themselves up as the new default Injector for the tree below them
