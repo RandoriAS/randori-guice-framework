@@ -17,13 +17,9 @@
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
 package guice {
-	import guice.binding.Binder;
+import guice.binding.IBinder;
 
-	public class GuiceModule {
-		public function configure(binder:Binder):void {
-		}
-
-		public function GuiceModule() {
-		}
-	}
+public interface IGuiceModule {
+	function configure(binder:IBinder):void;
+}
 }

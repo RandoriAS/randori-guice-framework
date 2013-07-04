@@ -18,27 +18,37 @@
  */
 package guice {
 import guice.binding.Binder;
+import guice.binding.IBinder;
 import guice.binding.utility.BindingHashMap;
 import guice.loader.SynchronousClassLoader;
 import guice.reflection.TypeDefinitionFactory;
 import guice.resolver.ClassResolver;
+import guice.resolver.IClassResolver;
 
 public class GuiceJs {
 	protected var loader:SynchronousClassLoader;
 
-	public function createInjector( module:GuiceModule ):Injector {
+	public function createInjector( module:IGuiceModule ):IInjector {
 		var factory:TypeDefinitionFactory = new TypeDefinitionFactory();
 		var hashMap:BindingHashMap = new BindingHashMap();
-		var classResolver:ClassResolver = new ClassResolver( loader, factory );
+		var classResolver:IClassResolver = new ClassResolver( loader, factory );
 		var binder:Binder = new Binder( hashMap, factory, classResolver );
 
 		if (module != null) {
 			module.configure(binder);
 		}
 
-		var injector:Injector = new Injector(binder, classResolver, factory );
+		//We need runtime proxies for IInjector, IBinder and IClassResolver as we aren't creating the initial classes through injection
+		factory.getDefinitionForName("guice.IInjector");
+		factory.getDefinitionForName("guice.binding.IBinder");
+		factory.getDefinitionForName("guice.resolver.IClassResolver");
+
+		var injector:IInjector = new Injector(binder, classResolver, factory );
 		binder.bind(Injector).toInstance(injector);
+		binder.bind(IInjector).toInstance(injector);
+		binder.bind(IBinder).to(Binder);
 		binder.bind(TypeDefinitionFactory).toInstance(factory);
+		binder.bind(IClassResolver).toInstance(classResolver);
 		binder.bind(ClassResolver).toInstance(classResolver);
 		binder.bind(SynchronousClassLoader).toInstance(loader);
 
@@ -46,7 +56,7 @@ public class GuiceJs {
 	}
 
 	//This is a little evil and I am not sure I like it, but it is the best way we can provide bindings to a child injector for now.
-	public function configureInjector( injector:ChildInjector, module:GuiceModule ):void {
+	public function configureInjector( injector:ChildInjector, module:IGuiceModule ):void {
 		injector.configureBinder( module );
 	}
 

@@ -17,39 +17,40 @@
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
 package guice {
-import guice.binding.AbstractBinding;
-import guice.binding.Binder;
+import guice.binding.IBinder;
+import guice.binding.IBinding;
 import guice.reflection.TypeDefinition;
 import guice.reflection.TypeDefinitionFactory;
 import guice.resolver.ClassResolver;
 
 public class ChildInjector extends Injector {
-		private var parentInjector:Injector;
+		private var parentInjector:IInjector;
 
 		//Used in a child injector situation to configure a binder with a module at runtime
-		internal function configureBinder( module:GuiceModule ):void {
+		internal function configureBinder( module:IGuiceModule ):void {
 			if (module != null) {
 				module.configure(binder);
 			}
 		}
-		
-		internal override function getBinding( typeDefinition:TypeDefinition ):AbstractBinding {
-			//First we try to resolve it on our own, without own AbstractBinding
-			var abstractBinding:AbstractBinding = binder.getBinding(typeDefinition);
-			
-			//if we do not have a specific AbstractBinding for it, we need to check to see if our parent injector has a specific AbstractBinding for it before we just go building stuff
-			if (abstractBinding == null) {
-				abstractBinding = parentInjector.getBinding(typeDefinition);
-			}
-			
-			return abstractBinding;
+
+	override public function getBinding(typeDefinition:TypeDefinition):IBinding {
+		//First we try to resolve it on our own, without own AbstractBinding
+		var abstractBinding:IBinding = binder.getBinding(typeDefinition);
+
+		//if we do not have a specific AbstractBinding for it, we need to check to see if our parent injector has a specific AbstractBinding for it before we just go building stuff
+		if (abstractBinding == null) {
+			abstractBinding = parentInjector.getBinding(typeDefinition);
 		}
-		
-		public function ChildInjector(binder:Binder, classResolver:ClassResolver, factory:TypeDefinitionFactory, parentInjector:Injector) {
+
+		return abstractBinding;
+	}
+
+	public function ChildInjector(binder:IBinder, classResolver:ClassResolver, factory:TypeDefinitionFactory, parentInjector:IInjector) {
 			super(binder, classResolver, factory);
 			this.parentInjector = parentInjector;
 			
 			//Child injectors set themselves up as the new default Injector for the tree below them
+			binder.bind(IInjector).toInstance(this);
 			binder.bind(Injector).toInstance(this);
 		}
 	}

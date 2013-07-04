@@ -23,23 +23,23 @@ import guice.reflection.TypeDefinitionFactory;
 
 import randori.webkit.page.Window;
 
-public class ClassResolver {
+public class ClassResolver implements IClassResolver {
 	private var loader:SynchronousClassLoader;
 	private var factory:TypeDefinitionFactory;
 
-	public function resolveProxy( proxy:TypeDefinition, circularDependencyMap:CircularDependencyMap ):TypeDefinition {
-		return resolveClassName( proxy.getClassName(), circularDependencyMap, true );
+	public function resolveProxy(proxy:TypeDefinition, circularDependencyMap:CircularDependencyMap):TypeDefinition {
+		return resolveClassName(proxy.getClassName(), circularDependencyMap, true);
 	}
 
-	public function resolveClassName( qualifiedClassName:String, circularDependencyMap:CircularDependencyMap, resolveRuntimeDependencyies:Boolean = true ):TypeDefinition {
-		var td:TypeDefinition = factory.getDefinitionForName( qualifiedClassName );
+	public function resolveClassName(qualifiedClassName:String, circularDependencyMap:CircularDependencyMap, resolveRuntimeDependencyies:Boolean = true):TypeDefinition {
+		var td:TypeDefinition = factory.getDefinitionForName(qualifiedClassName);
 
-		if ( td.isProxy ) {
+		if (td.isProxy) {
 
 			Window.console.log("Resolving Proxy");
 
-			if ( circularDependencyMap[ qualifiedClassName ] ) {
-				throw new Error("Circular Reference While Resolving Name : " + qualifiedClassName );
+			if (circularDependencyMap[ qualifiedClassName ]) {
+				throw new Error("Circular Reference While Resolving Name : " + qualifiedClassName);
 			}
 
 			//Add this to a circular dependency map so we can ensure we don't try to resolve this
@@ -50,22 +50,22 @@ public class ClassResolver {
 
 			//Before we load it into memory, check on the super class and see if we need to load *that*
 			//into memory. We may *NOT* have an inherit if we dont inherit from anything, that is just fine
-			resolveParentClassFromDefinition(qualifiedClassName,classDefinition, circularDependencyMap);
+			resolveParentClassFromDefinition(qualifiedClassName, classDefinition, circularDependencyMap);
 
 			//Now, add a stub of the definition into memory. We do this because this 'class' could
 			//have static requirements meaning that it could require other loading as it enters memory
 			//by creating a stub, we can do deal with that first
-			addDefinition( getStubDefinition(qualifiedClassName, classDefinition) );
+			addDefinition(getStubDefinition(qualifiedClassName, classDefinition));
 
 			//Get a reference to the newly added stub
-			td = factory.getDefinitionForName( qualifiedClassName );
+			td = factory.getDefinitionForName(qualifiedClassName);
 
-			if ( td.builtIn ) {
+			if (td.builtIn) {
 				throw new Error(qualifiedClassName + " was not built with the Randori compiler or has not been decorated prior to injection ");
 			}
 
 			//Resolve any classes it references in its own code execution
-			resolveStaticDependencies(td, circularDependencyMap );
+			resolveStaticDependencies(td, circularDependencyMap);
 
 			//Remove from the circular dependency map, we are all done dealing with this one
 			delete circularDependencyMap[ qualifiedClassName ];
@@ -74,13 +74,13 @@ public class ClassResolver {
 			addDefinition(classDefinition);
 
 			//Get a reference to the newly added type
-			td = factory.getDefinitionForName( qualifiedClassName );
+			td = factory.getDefinitionForName(qualifiedClassName);
 
-			if ( resolveRuntimeDependencyies ) {
-				resolveRuntimeDependencies( td );
+			if (resolveRuntimeDependencyies) {
+				resolveRuntimeDependencies(td);
 			}
-		} else if ( td.pending ) {
-			throw new Error("Circular Reference While Resolving Partial Class : " + qualifiedClassName );
+		} else if (td.pending) {
+			throw new Error("Circular Reference While Resolving Partial Class : " + qualifiedClassName);
 		}
 
 		return td;

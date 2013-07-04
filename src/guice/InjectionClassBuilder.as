@@ -23,11 +23,11 @@ import guice.resolver.CircularDependencyMap;
 import guice.resolver.ClassResolver;
 
 public class InjectionClassBuilder {
-	private var injector:Injector;
+	private var injector:IInjector;
 	private var classResolver:ClassResolver;
 	private var factory:TypeDefinitionFactory;
 
-	public function buildContext( className:String ):Object {
+	public function buildContext( className:String ):IGuiceModule {
 		var td:TypeDefinition = classResolver.resolveClassName(className, new CircularDependencyMap(), false );
 
 		var classDependencies:Vector.<String> = td.getRuntimeDependencies();
@@ -46,7 +46,7 @@ public class InjectionClassBuilder {
 		return injector.getInstanceByDefinition(type);
 	}
 
-	public function InjectionClassBuilder(injector:Injector, classResolver:ClassResolver, factory:TypeDefinitionFactory) {
+	public function InjectionClassBuilder(injector:IInjector, classResolver:ClassResolver, factory:TypeDefinitionFactory) {
 		this.injector = injector;
 		this.classResolver = classResolver;
 		this.factory = factory;
