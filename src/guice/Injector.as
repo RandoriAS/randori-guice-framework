@@ -18,14 +18,14 @@
  */
 package guice
 {
-import guice.binding.AbstractBinding;
-import guice.binding.Binder;
+import guice.binding.IBinder;
+import guice.binding.IBinding;
 import guice.reflection.InjectionPoint;
 import guice.reflection.MethodInjectionPoint;
 import guice.reflection.TypeDefinition;
 import guice.reflection.TypeDefinitionFactory;
 import guice.resolver.CircularDependencyMap;
-import guice.resolver.ClassResolver;
+import guice.resolver.IClassResolver;
 
 //Where I left off
 /**
@@ -38,47 +38,47 @@ import guice.resolver.ClassResolver;
 
 
 
-public class Injector {
-	protected var binder:Binder;
-	protected var classResolver:ClassResolver;
+public class Injector implements IInjector {
+	protected var binder:IBinder;
+	protected var classResolver:IClassResolver;
 	private var factory:TypeDefinitionFactory;
 
-	public function getInstance( dependency:Class ):Object {
-		return resolveDependency( factory.getDefinitionForType( dependency ), new CircularDependencyMap() );
+	public function getInstance(dependency:Class):Object {
+		return resolveDependency(factory.getDefinitionForType(dependency), new CircularDependencyMap());
 	}
 
-	public function getInstanceByDefinition( dependencyTypeDefinition:TypeDefinition ):* {
-		return resolveDependency( dependencyTypeDefinition, new CircularDependencyMap() );
+	public function getInstanceByDefinition(dependencyTypeDefinition:TypeDefinition):* {
+		return resolveDependency(dependencyTypeDefinition, new CircularDependencyMap());
 	}
 
-	internal function getBinding( typeDefinition:TypeDefinition ):AbstractBinding  {
-		return binder.getBinding( typeDefinition );
+	public function getBinding(typeDefinition:TypeDefinition):IBinding {
+		return binder.getBinding(typeDefinition);
 	}
 
 	//Entry point for TypeAbstractBinding to ask for a class....
 	//This method does so without trying to resolve the class first, which is important if we are called from within a resolution
-	public function buildClass( typeDefinition:TypeDefinition, circularDependencyMap:CircularDependencyMap ):* {
+	public function buildClass(typeDefinition:TypeDefinition, circularDependencyMap:CircularDependencyMap):* {
 		var instance:Object;
 
-		if ( typeDefinition.builtIn ) {
-			instance = typeDefinition.constructorApply( null );
+		if (typeDefinition.builtIn) {
+			instance = typeDefinition.constructorApply(null);
 		} else {
-			if ( typeDefinition.isProxy ) {
+			if (typeDefinition.isProxy) {
 				//We need to resolve this proxy before continuing
-				typeDefinition = classResolver.resolveProxy( typeDefinition, circularDependencyMap );
+				typeDefinition = classResolver.resolveProxy(typeDefinition, circularDependencyMap);
 			} else {
 				//Not sure if this should get added only in the case where we don't need to resolve
 				circularDependencyMap[ typeDefinition.getClassName() ] = true;
 			}
 
 			var constructorPoints:Vector.<InjectionPoint> = typeDefinition.getConstructorParameters();
-			instance = buildFromInjectionInfo( typeDefinition, constructorPoints, circularDependencyMap );
+			instance = buildFromInjectionInfo(typeDefinition, constructorPoints, circularDependencyMap);
 
 			var fieldPoints:Vector.<InjectionPoint> = typeDefinition.getInjectionFields();
-			injectMemberPropertiesFromInjectionInfo( instance, fieldPoints, circularDependencyMap );
+			injectMemberPropertiesFromInjectionInfo(instance, fieldPoints, circularDependencyMap);
 
 			var methodPoints:Vector.<MethodInjectionPoint> = typeDefinition.getInjectionMethods();
-			injectMembersMethodsFromInjectionInfo( instance, methodPoints, circularDependencyMap );
+			injectMembersMethodsFromInjectionInfo(instance, methodPoints, circularDependencyMap);
 
 			delete circularDependencyMap[ typeDefinition.getClassName() ];
 		}
@@ -134,7 +134,7 @@ public class Injector {
 	}
 
 	private function resolveDependency( typeDefinition:TypeDefinition, circularDependencyMap:CircularDependencyMap ):Object {
-		var abstractBinding:AbstractBinding = null;
+		var abstractBinding:IBinding = null;
 
 		if ( circularDependencyMap[ typeDefinition.getClassName() ] ) {
 			throw new Error("Circular Reference While Resolving : " + typeDefinition.getClassName() );
@@ -155,7 +155,7 @@ public class Injector {
 		return instance;
 	}
 
-	public function Injector(binder:Binder, classResolver:ClassResolver, factory:TypeDefinitionFactory ) {
+	public function Injector(binder:IBinder, classResolver:IClassResolver, factory:TypeDefinitionFactory ) {
 		this.binder = binder;
 		this.classResolver = classResolver;
 		this.factory = factory;

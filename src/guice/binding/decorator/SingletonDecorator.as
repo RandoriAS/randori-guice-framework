@@ -16,18 +16,17 @@
  * 
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
-package guice.binding.decorator
-{
-	import guice.binding.AbstractBinding;
-	import guice.binding.Scope;
+package guice.binding.decorator {
+import guice.binding.IBinding;
+import guice.binding.Scope;
 
-	public class SingletonDecorator extends ContextDecorator {
+public class SingletonDecorator extends ContextDecorator {
 		
 		override public function getScope():int {
 			return Scope.Singleton;
 		}
 
-		public function SingletonDecorator(sourceBinding:AbstractBinding) {
+		public function SingletonDecorator(sourceBinding:IBinding) {
 			super(sourceBinding);
 		}
 	}

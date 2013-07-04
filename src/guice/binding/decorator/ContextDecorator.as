@@ -17,33 +17,33 @@
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
 package guice.binding.decorator {
-	import guice.Injector;
-	import guice.binding.AbstractBinding;
-	import guice.binding.Scope;
-	
-	public class ContextDecorator extends AbstractBinding {
-		
-		private var sourceBinding:AbstractBinding;
-		private var instance:Object;
+import guice.IInjector;
+import guice.binding.IBinding;
+import guice.binding.Scope;
 
-		override public function getTypeName():String {
-			return sourceBinding.getTypeName();
-		}
+public class ContextDecorator implements IBinding {
 		
-		override public function getScope():int {
-			return Scope.Context;
-		}
-		
-		override public function provide(injector:Injector):Object {
-			if (instance == null) {
-				instance = sourceBinding.provide(injector);
-			}
-			
-			return instance;
-		}		
-		
-		public function ContextDecorator( sourceBinding:AbstractBinding ) {
-			this.sourceBinding = sourceBinding;
-		}
+	private var sourceBinding:IBinding;
+	private var instance:*;
+
+	public function getTypeName():String {
+		return sourceBinding.getTypeName();
 	}
+
+	public function getScope():int {
+		return Scope.Context;
+	}
+
+	public function provide(injector:IInjector):* {
+		if (instance == null) {
+			instance = sourceBinding.provide(injector);
+		}
+
+		return instance;
+	}
+
+	public function ContextDecorator( sourceBinding:IBinding ) {
+		this.sourceBinding = sourceBinding;
+	}
+}
 }
