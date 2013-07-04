@@ -21,32 +21,32 @@ import guice.binding.decorator.ContextDecorator;
 import guice.binding.decorator.SingletonDecorator;
 import guice.reflection.TypeDefinition;
 import guice.reflection.TypeDefinitionFactory;
-import guice.resolver.ClassResolver;
+import guice.resolver.IClassResolver;
 
 public class BindingFactory {
 	private var binder:Binder;
 	private var typeDefinition:TypeDefinition;
 	private var scope:int;
 	private var factory:TypeDefinitionFactory;
-	private var classResolver:ClassResolver;
+	private var classResolver:IClassResolver;
 		
-	public function to( dependency:Class ):AbstractBinding {
-		var abstractBinding:AbstractBinding = withDecoration( new TypeBinding( typeDefinition, factory.getDefinitionForType( dependency ), classResolver ) );
+	public function to( dependency:Class ):IBinding {
+		var abstractBinding:IBinding = withDecoration( new TypeBinding( typeDefinition, factory.getDefinitionForType( dependency ), classResolver ) );
 
 		binder.addBinding( abstractBinding );
 		return abstractBinding;
 	}
 
-	public function toInstance( instance:Object ):AbstractBinding {
+	public function toInstance( instance:Object ):IBinding {
 		//At first it seems silly to have a singleton decorator around an instance, but it affects our rules for overriding in ChildInjectors, so keep it
-		var abstractBinding:AbstractBinding = withDecoration( new InstanceBinding( typeDefinition, instance ) );
+		var abstractBinding:IBinding = withDecoration( new InstanceBinding( typeDefinition, instance ) );
 
 		binder.addBinding( abstractBinding );
 		return abstractBinding;
 	}
 
-	public function toProvider( providerType:Class ):AbstractBinding {
-		var abstractBinding:AbstractBinding = withDecoration( new ProviderBinding(typeDefinition, factory.getDefinitionForType(providerType) ) );
+	public function toProvider( providerType:Class ):IBinding {
+		var abstractBinding:IBinding = withDecoration( new ProviderBinding(typeDefinition, factory.getDefinitionForType(providerType) ) );
 		binder.addBinding( abstractBinding );
 		return abstractBinding;
 	}
@@ -56,7 +56,7 @@ public class BindingFactory {
 		return this;
 	}
 
-	private function withDecoration( abstractBinding:AbstractBinding ):AbstractBinding {
+	private function withDecoration( abstractBinding:IBinding ):IBinding {
 		if (scope == Scope.Context) {
 			abstractBinding = new ContextDecorator(abstractBinding);
 		} else if (scope == Scope.Singleton ) {
@@ -66,7 +66,7 @@ public class BindingFactory {
 		return abstractBinding;
 	}
 
-	public function BindingFactory( binder:Binder, typeDefinition:TypeDefinition, factory:TypeDefinitionFactory, classResolver:ClassResolver ) {
+	public function BindingFactory( binder:Binder, typeDefinition:TypeDefinition, factory:TypeDefinitionFactory, classResolver:IClassResolver ) {
 		this.binder = binder;
 		this.typeDefinition = typeDefinition;
 		this.factory = factory;

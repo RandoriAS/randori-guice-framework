@@ -17,20 +17,20 @@
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
 package guice.module {
-import guice.GuiceModule;
-import guice.binding.Binder;
+import guice.IGuiceModule;
+import guice.binding.IBinder;
 
-public class InlineModule extends GuiceModule {
-		private var configFunction:Function;
+public class InlineModule implements IGuiceModule {
+	private var configFunction:Function;
 
-		override public function configure(binder:Binder):void {
-			if ( configFunction != null )
-				configFunction( binder );
-		}
-
-		//Pass a function with the signature f((binder:Binder):void
-		public function InlineModule( configFunction:Function ) {
-			this.configFunction = configFunction;
-		}
+	public function configure(binder:IBinder):void {
+		if ( configFunction != null )
+			configFunction( binder );
 	}
+
+	//Pass a function with the signature f((binder:IBinder):void
+	public function InlineModule( configFunction:Function ) {
+		this.configFunction = configFunction;
+	}
+}
 }

@@ -16,23 +16,8 @@
  * 
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
-package guice.binding {
-import guice.Injector;
-
-public class AbstractBinding {
-		public function provide(injector:Injector):Object {
-			return null;
-		}
-		
-		public function getTypeName():String {
-			return null;
-		}
-		
-		public function getScope():int {
-			return -1;
-		}
-
-		public function AbstractBinding() {
-		}
+package guice.binding.provider {
+	public interface IProvider {
+		function get():*;
 	}
 }

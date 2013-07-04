@@ -17,28 +17,28 @@
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
 package guice.binding {
-	import guice.Injector;
-	import guice.binding.provider.AbstractProvider;
-	import guice.reflection.TypeDefinition;
+import guice.IInjector;
+import guice.binding.provider.IProvider;
+import guice.reflection.TypeDefinition;
 
-	public class ProviderBinding extends AbstractBinding {
+public class ProviderBinding implements IBinding{
 		private var typeDefinition:TypeDefinition;
 		private var providerTypeDefinition:TypeDefinition;
 
-		private var provider:AbstractProvider;
+		private var provider:IProvider;
 		
-		override public function getTypeName():String {
+		public function getTypeName():String {
 			return typeDefinition.getClassName();
 		}
 		
-		override public function getScope():int {
+		public function getScope():int {
 			return Scope.Instance;
 		}
 		
-		override public function provide(injector:Injector):Object {
+		public function provide(injector:IInjector):* {
 			
 			if ( provider == null ) {
-				provider = ( injector.getInstanceByDefinition(providerTypeDefinition) ) as AbstractProvider;
+				provider = ( injector.getInstanceByDefinition(providerTypeDefinition) ) as IProvider;
 			}
 			
 			return provider.get();
