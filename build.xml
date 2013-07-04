@@ -28,12 +28,13 @@
 			 <arg value="-external-library-path=${build.output}JQuery.swc"/>
 			 <arg value="-external-library-path=${build.output}HTMLCoreLib.swc"/>
 			 <arg value="-bundle-libraries=randori-guice-framework"/>
-			 <arg value="-output=${build.output}randori-guice.rbl"/>
+			 <arg value="-output=${basedir_clean}/randori-guice.rbl"/>
 			 <arg value="-bundle-source-path=randori-guice-framework,${basedir_clean}\src"/>
 			 <classpath>
 			   <pathelement location="${randori.compiler.path}randori.jar"/>
 			 </classpath>
 	       </java>
+	       <copy file="${basedir_clean}/randori-guice.rbl" tofile="${build.output}randori-guice.rbl"/>
 	</target>
 
 </project>
