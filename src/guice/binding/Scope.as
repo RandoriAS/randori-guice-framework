@@ -17,7 +17,7 @@
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
 package guice.binding {
-	[JavaScript(export="true")]
+	[JavaScript(export="false",mode="json")]
 	public class Scope {
 		
 		/** Instance Scope mean it is an instance scope with no Guice rules governing the recreation of the object. So, Type & Provider bindings will be executed as requested.
