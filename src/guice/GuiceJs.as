@@ -46,7 +46,8 @@ public class GuiceJs {
 		var injector:IInjector = new Injector(binder, classResolver, factory );
 		binder.bind(Injector).toInstance(injector);
 		binder.bind(IInjector).toInstance(injector);
-		binder.bind(IBinder).to(Binder);
+		binder.bind(IBinder).toInstance(binder);
+		binder.bind(Binder).toInstance(binder);
 		binder.bind(TypeDefinitionFactory).toInstance(factory);
 		binder.bind(IClassResolver).toInstance(classResolver);
 		binder.bind(ClassResolver).toInstance(classResolver);
@@ -56,7 +57,7 @@ public class GuiceJs {
 	}
 
 	//This is a little evil and I am not sure I like it, but it is the best way we can provide bindings to a child injector for now.
-	public function configureInjector( injector:ChildInjector, module:IGuiceModule ):void {
+	public function configureInjector( injector:IInjector, module:IGuiceModule ):void {
 		injector.configureBinder( module );
 	}
 

@@ -37,7 +37,7 @@ public class SynchronousClassLoader {
 			if (xmlHttpRequest.status == 404) {
 				//Todo This alert shouldnt be here, we should figure out a way to get it to the UI level
 				//HtmlContext.alert("Required Class " + qualifiedClassName + " cannot be loaded.");
-				throw new Error("Cannot continue, missing required class " + qualifiedClassName);
+				throw new Error("Cannot continue, missing an implementation for required asset " + qualifiedClassName);
 			}
 			
 			return ( xmlHttpRequest.responseText + "\n//@ sourceURL=" + potentialURL );

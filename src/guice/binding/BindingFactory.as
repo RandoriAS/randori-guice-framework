@@ -19,12 +19,13 @@
 package guice.binding {
 import guice.binding.decorator.ContextDecorator;
 import guice.binding.decorator.SingletonDecorator;
+import guice.binding.provider.IProvider;
 import guice.reflection.TypeDefinition;
 import guice.reflection.TypeDefinitionFactory;
 import guice.resolver.IClassResolver;
 
 public class BindingFactory {
-	private var binder:Binder;
+	private var binder:IBinder;
 	private var typeDefinition:TypeDefinition;
 	private var scope:int;
 	private var factory:TypeDefinitionFactory;
@@ -46,7 +47,13 @@ public class BindingFactory {
 	}
 
 	public function toProvider( providerType:Class ):IBinding {
-		var abstractBinding:IBinding = withDecoration( new ProviderBinding(typeDefinition, factory.getDefinitionForType(providerType) ) );
+		var abstractBinding:IBinding = withDecoration( new ProviderTypeBinding( typeDefinition, factory.getDefinitionForType( providerType ), classResolver ) );
+		binder.addBinding( abstractBinding );
+		return abstractBinding;
+	}
+
+	public function toProviderInstance( provider:IProvider ):IBinding {
+		var abstractBinding:IBinding = withDecoration( new ProviderBinding( typeDefinition, provider ) );
 		binder.addBinding( abstractBinding );
 		return abstractBinding;
 	}
@@ -66,7 +73,7 @@ public class BindingFactory {
 		return abstractBinding;
 	}
 
-	public function BindingFactory( binder:Binder, typeDefinition:TypeDefinition, factory:TypeDefinitionFactory, classResolver:IClassResolver ) {
+	public function BindingFactory( binder:IBinder, typeDefinition:TypeDefinition, factory:TypeDefinitionFactory, classResolver:IClassResolver ) {
 		this.binder = binder;
 		this.typeDefinition = typeDefinition;
 		this.factory = factory;

@@ -18,42 +18,51 @@
  */
 package guice.binding {
 import guice.IInjector;
+import guice.binding.provider.IProvider;
 import guice.reflection.TypeDefinition;
 import guice.resolver.CircularDependencyMap;
 import guice.resolver.IClassResolver;
 
-public class TypeBinding implements IBinding{
+public class ProviderTypeBinding implements IBinding{
 	private var typeDefinition:TypeDefinition;
-	private var dependencyDefinition:TypeDefinition;
+	private var providerTypeDefinition:TypeDefinition;
 	private var classResolver:IClassResolver;
 	private var isProxiedDefinition:Boolean = false;
-		
+
+	private var provider:IProvider;
+
 	public function getTypeName():String {
 		return typeDefinition.getClassName();
 	}
-
+	
 	public function getScope():int {
 		return Scope.Instance;
 	}
-
+	
 	public function provide(injector:IInjector):* {
-		//This one is temporary to get us up and going with interfaces... we will deal with it later
+		
+		if ( provider == null ) {
+			//This one is temporary to get us up and going with interfaces... we will deal with it later
 
-		if ( isProxiedDefinition ) {
-			this.dependencyDefinition = classResolver.resolveProxy( this.dependencyDefinition, new CircularDependencyMap() );
+			if ( isProxiedDefinition ) {
+				this.providerTypeDefinition = classResolver.resolveProxy( this.providerTypeDefinition, new CircularDependencyMap() );
+			}
+
+			provider = ( injector.getInstanceByDefinition( providerTypeDefinition ) ) as IProvider;
 		}
-
-		return injector.buildClassFromDefinition( dependencyDefinition, new CircularDependencyMap() );
+		
+		return provider.get();
 	}
 
-	public function TypeBinding(typeDefinition:TypeDefinition, dependencyDefinition:TypeDefinition, classResolver:IClassResolver ) {
+	public function ProviderTypeBinding(typeDefinition:TypeDefinition, providerTypeDefinition:TypeDefinition, classResolver:IClassResolver ) {
 		this.typeDefinition = typeDefinition;
-		this.dependencyDefinition = dependencyDefinition;
+		this.providerTypeDefinition = providerTypeDefinition;
 		this.classResolver = classResolver;
 
-		if ( dependencyDefinition.isProxy ) {
+		if ( providerTypeDefinition.isProxy ) {
 			isProxiedDefinition = true;
 		}
+		
 	}
 }
 }

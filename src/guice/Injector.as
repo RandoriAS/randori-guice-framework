@@ -55,9 +55,13 @@ public class Injector implements IInjector {
 		return binder.getBinding(typeDefinition);
 	}
 
-	//Entry point for TypeAbstractBinding to ask for a class....
+	public function buildClass(type:Class, circularDependencyMap:CircularDependencyMap):* {
+		return buildClassFromDefinition( factory.getDefinitionForType( type ), new CircularDependencyMap() );
+	}
+
+		//Entry point for TypeAbstractBinding to ask for a class....
 	//This method does so without trying to resolve the class first, which is important if we are called from within a resolution
-	public function buildClass(typeDefinition:TypeDefinition, circularDependencyMap:CircularDependencyMap):* {
+	public function buildClassFromDefinition(typeDefinition:TypeDefinition, circularDependencyMap:CircularDependencyMap):* {
 		var instance:Object;
 
 		if (typeDefinition.builtIn) {
@@ -149,10 +153,17 @@ public class Injector implements IInjector {
 		if (abstractBinding != null) {
 			instance = abstractBinding.provide( this );
 		} else {
-			instance = buildClass( typeDefinition, circularDependencyMap );
+			instance = buildClassFromDefinition( typeDefinition, circularDependencyMap );
 		}
 
 		return instance;
+	}
+
+	//Used in a child injector situation to configure a binder with a module at runtime
+	public function configureBinder( module:IGuiceModule ):void {
+		if (module != null) {
+			module.configure(binder);
+		}
 	}
 
 	public function Injector(binder:IBinder, classResolver:IClassResolver, factory:TypeDefinitionFactory ) {

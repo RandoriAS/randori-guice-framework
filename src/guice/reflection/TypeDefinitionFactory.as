@@ -88,10 +88,6 @@ public class TypeDefinitionFactory {
 		return new TypeDefinition( type );
 	}
 
-	public function getNewDefinitionForTypeDefinition( typeDefinition:TypeDefinition ):TypeDefinition {
-		return getDefinitionForName( typeDefinition.getClassName() );
-	}
-
 	public function TypeDefinitionFactory() {
 	}
 }
