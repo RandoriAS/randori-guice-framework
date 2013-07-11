@@ -43,7 +43,7 @@ public class ClassResolver implements IClassResolver {
 			}
 
 			//Add this to a circular dependency map so we can ensure we don't try to resolve this
-			//class again in this stack
+			//class again inx this stack
 			circularDependencyMap[ qualifiedClassName ] = true;
 
 			var classDefinition:String = loader.loadClass(qualifiedClassName);
@@ -96,6 +96,14 @@ public class ClassResolver implements IClassResolver {
 
 	private function resolveRuntimeDependencies(type:TypeDefinition ):void {
 		var classDependencies:Vector.<String> = type.getRuntimeDependencies();
+
+		/** Every so often, you might forget and say, wow, these dependencies should really go through the injector map
+		 * before the are resolved. This is a big problem. After all, what if someone has a runtime dependency on IInjector
+		 * That's when you need to pause. These are dependencies that are created inline with things like new Foo()
+		 * If someone says new IInjector() they get what they deserve.
+		 * Further if someone says new SpecialCommand() and we instead realize SpecialCommand is mapped to SpecialCommand2 and
+		 * swap it, it will create unexpected behavior. So, this needs to stay concrete.
+		 */
 
 		for ( var i:int=0; i<classDependencies.length; i++) {
 			//These are runtime dependencies, therefore we should be able to resolve each in its own circular stack
