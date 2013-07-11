@@ -24,14 +24,14 @@ import guice.reflection.TypeDefinitionFactory;
 import guice.resolver.ClassResolver;
 
 public class ChildInjector extends Injector {
-		private var parentInjector:IInjector;
+	private var parentInjector:IInjector;
 
-		//Used in a child injector situation to configure a binder with a module at runtime
-		internal function configureBinder( module:IGuiceModule ):void {
-			if (module != null) {
-				module.configure(binder);
-			}
+	//Used in a child injector situation to configure a binder with a module at runtime
+	internal function configureBinder( module:IGuiceModule ):void {
+		if (module != null) {
+			module.configure(binder);
 		}
+	}
 
 	override public function getBinding(typeDefinition:TypeDefinition):IBinding {
 		//First we try to resolve it on our own, without own AbstractBinding
@@ -46,12 +46,14 @@ public class ChildInjector extends Injector {
 	}
 
 	public function ChildInjector(binder:IBinder, classResolver:ClassResolver, factory:TypeDefinitionFactory, parentInjector:IInjector) {
-			super(binder, classResolver, factory);
-			this.parentInjector = parentInjector;
-			
-			//Child injectors set themselves up as the new default Injector for the tree below them
-			binder.bind(IInjector).toInstance(this);
-			binder.bind(Injector).toInstance(this);
-		}
+		super(binder, classResolver, factory);
+		this.parentInjector = parentInjector;
+
+		//Child injectors set themselves up as the new default Injector for the tree below them
+		//hack until we can deal with compiler explanation of interfaces
+		var iinjector:Class = factory.getDefinitionForName("guice.IInjector").type;
+		binder.bind( iinjector ).toInstance(this);
+		binder.bind(Injector).toInstance(this);
 	}
+}
 }
