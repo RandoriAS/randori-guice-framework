@@ -41,9 +41,9 @@ public class InjectionClassBuilder {
 	}
 
 	public function buildClass( className:String ):Object {
-		var type:TypeDefinition = classResolver.resolveClassName( className, new CircularDependencyMap() );
+		var td:TypeDefinition = factory.getDefinitionForName( className );
 
-		return injector.getInstanceByDefinition(type);
+		return injector.getInstanceByDefinition(  td );
 	}
 
 	public function InjectionClassBuilder(injector:IInjector, classResolver:ClassResolver, factory:TypeDefinitionFactory) {

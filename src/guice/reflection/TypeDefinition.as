@@ -26,6 +26,7 @@ package guice.reflection {
 		
 		private var _type:*;
 		private var _builtIn:Boolean = false;
+		private var _className:String;
 
 		public function get type():* {
 			return _type;
@@ -44,18 +45,34 @@ package guice.reflection {
 		}
 
 		public function getClassName():String {
-			var className:String = _type.className;
-			
-			if ( !className ) {
-                //this could be native, check the name next
-                className = _type.name;
 
-                if ( !className ) {
-				    throw new Error("Class not does defined a usable className");
-                }
+			if ( !_className ) {
+				_className = _type.className;
+
+				if ( !_className ) {
+					//this could be native, in chrome we could check the name next
+					_className = _type.name;
+
+					if ( !_className ) {
+						//Either we are not in Chrome or someone just passed us a random function
+						//We can't tell at this point, so do a bit more work before giving up
+
+						//function XMLHttpRequest(){ [Native Code] } for example
+						var functionDef:String = _type.toString();
+						var functionName:String = functionDef.substr( 9 );
+						functionName = functionName.substring( 0, functionName.indexOf("{") );
+						_className = functionName;
+
+						if ( !_className ) {
+							throw new Error("Cannot determine class name of requested injection " + functionDef );
+						}
+					}
+				}
+
 			}
-			
-			return className;
+
+
+			return _className;
 		}
 		
 		public function getSuperClassName():String {
