@@ -35,6 +35,24 @@ public class Binder implements IBinder {
 		hashMap[abstractBinding.getTypeName()] = abstractBinding;
 	}
 
+	public function destroy():void {
+		for each ( var binding:IBinding in  hashMap ) {
+			binding.destroy();
+		}
+
+		hashMap = null;
+	}
+
+	public function unbind(type:Class):void {
+		var typeDefinition:TypeDefinition = factory.getDefinitionForType(type);
+		var existingBinding:IBinding = getBinding(typeDefinition);
+
+		if ( existingBinding ) {
+			delete hashMap[ existingBinding.getTypeName() ];
+			existingBinding.destroy();
+		}
+	}
+
 	public function bind(type:Class):BindingFactory {
 		var typeDefinition:TypeDefinition = factory.getDefinitionForType(type);
 		var existingBinding:IBinding = getBinding(typeDefinition);

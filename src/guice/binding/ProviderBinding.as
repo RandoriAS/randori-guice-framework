@@ -32,7 +32,12 @@ public class ProviderBinding implements IBinding{
 	public function getScope():int {
 		return Scope.Instance;
 	}
-	
+
+	public function destroy():void {
+		provider = null;
+		typeDefinition = null;
+	}
+
 	public function provide(injector:IInjector):* {
 		return provider.get();
 	}

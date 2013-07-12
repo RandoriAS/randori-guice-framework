@@ -21,24 +21,28 @@ import guice.IInjector;
 import guice.reflection.TypeDefinition;
 
 public class InstanceBinding implements IBinding {
-		private var typeDefinition:TypeDefinition;
-		private var instance:Object;
-		
-		public function getTypeName():String {
-			return typeDefinition.getClassName();
-		}
-		
-		public function getScope():int {
-			return Scope.Instance;
-		}
-		
-		public function provide(injector:IInjector):* {
-			return instance;
-		}		
+	private var typeDefinition:TypeDefinition;
+	private var instance:Object;
 
-		public function InstanceBinding(typeDefinition:TypeDefinition, instance:Object) {
-			this.typeDefinition = typeDefinition;
-			this.instance = instance
-		}
+	public function getTypeName():String {
+		return typeDefinition.getClassName();
 	}
+
+	public function getScope():int {
+		return Scope.Instance;
+	}
+
+	public function destroy():void {
+		typeDefinition = null;
+	}
+
+	public function provide(injector:IInjector):* {
+		return instance;
+	}
+
+	public function InstanceBinding(typeDefinition:TypeDefinition, instance:Object) {
+		this.typeDefinition = typeDefinition;
+		this.instance = instance
+	}
+}
 }

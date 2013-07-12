@@ -23,5 +23,6 @@ public interface IBinding {
 	function provide(injector:IInjector):*;
 	function getTypeName():String;
 	function getScope():int;
+	function destroy():void;
 }
 }
