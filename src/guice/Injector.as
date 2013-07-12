@@ -18,8 +18,8 @@
  */
 package guice
 {
-import guice.binding.IBinder;
 import guice.binding.IBinding;
+import guice.binding.IChildBinder;
 import guice.reflection.InjectionPoint;
 import guice.reflection.MethodInjectionPoint;
 import guice.reflection.TypeDefinition;
@@ -39,7 +39,7 @@ import guice.resolver.IClassResolver;
 
 
 public class Injector implements IInjector {
-	protected var binder:IBinder;
+	protected var binder:IChildBinder;
 	protected var classResolver:IClassResolver;
 	private var factory:TypeDefinitionFactory;
 
@@ -166,7 +166,7 @@ public class Injector implements IInjector {
 		}
 	}
 
-	public function Injector(binder:IBinder, classResolver:IClassResolver, factory:TypeDefinitionFactory ) {
+	public function Injector( binder:IChildBinder, classResolver:IClassResolver, factory:TypeDefinitionFactory ) {
 		this.binder = binder;
 		this.classResolver = classResolver;
 		this.factory = factory;

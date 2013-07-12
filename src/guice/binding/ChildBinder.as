@@ -22,9 +22,7 @@ import guice.reflection.TypeDefinition;
 import guice.reflection.TypeDefinitionFactory;
 import guice.resolver.IClassResolver;
 
-import randori.timer.Timer;
-
-public class ChildBinder extends Binder  {
+public class ChildBinder extends Binder implements IChildBinder {
 	private var parentBinder:IBinder;
 
 	override public function getBinding( typeDefinition:TypeDefinition ):IBinding {
@@ -42,7 +40,6 @@ public class ChildBinder extends Binder  {
 		super( hashMap, factory, classResolver );
 		this.parentBinder = parentBinder;
 
-		var x : Timer = new Timer(1,2);
 		//Child binders set themselves up as the new default Binder for the tree below them
 		bind(IBinder).toInstance(this);
 		bind(Binder).toInstance(this);

@@ -22,7 +22,7 @@ import guice.reflection.TypeDefinition;
 import guice.reflection.TypeDefinitionFactory;
 import guice.resolver.IClassResolver;
 
-public class Binder implements IBinder {
+public class Binder implements IBinder, IChildBinder {
 	private var hashMap:BindingHashMap;
 	private var factory:TypeDefinitionFactory;
 	private var classResolver:IClassResolver;

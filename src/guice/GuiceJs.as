@@ -18,7 +18,9 @@
  */
 package guice {
 import guice.binding.Binder;
+import guice.binding.ChildBinder;
 import guice.binding.IBinder;
+import guice.binding.IChildBinder;
 import guice.binding.utility.BindingHashMap;
 import guice.loader.SynchronousClassLoader;
 import guice.reflection.TypeDefinitionFactory;
@@ -41,6 +43,7 @@ public class GuiceJs {
 		//We need runtime proxies for IInjector, IBinder and IClassResolver as we aren't creating the initial classes through injection
 		factory.getDefinitionForName("guice.IInjector");
 		factory.getDefinitionForName("guice.binding.IBinder");
+		factory.getDefinitionForName("guice.binding.IChildBinder");
 		factory.getDefinitionForName("guice.resolver.IClassResolver");
 
 		var injector:IInjector = new Injector(binder, classResolver, factory );
@@ -48,6 +51,7 @@ public class GuiceJs {
 		binder.bind(IInjector).toInstance(injector);
 		binder.bind(IBinder).toInstance(binder);
 		binder.bind(Binder).toInstance(binder);
+		binder.bind(IChildBinder).toInstance(ChildBinder);
 		binder.bind(TypeDefinitionFactory).toInstance(factory);
 		binder.bind(IClassResolver).toInstance(classResolver);
 		binder.bind(ClassResolver).toInstance(classResolver);
