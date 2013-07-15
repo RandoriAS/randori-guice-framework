@@ -18,8 +18,8 @@
  */
 package guice
 {
+import guice.binding.IBinder;
 import guice.binding.IBinding;
-import guice.binding.IChildBinder;
 import guice.reflection.InjectionPoint;
 import guice.reflection.MethodInjectionPoint;
 import guice.reflection.TypeDefinition;
@@ -27,23 +27,12 @@ import guice.reflection.TypeDefinitionFactory;
 import guice.resolver.CircularDependencyMap;
 import guice.resolver.IClassResolver;
 
-//Where I left off
-/**
- *
- * If I map VerticalTabs to VerticalTabs I have an issue because the type stored in the binding was still a proxy
- * If I map an interface to a type, the interface is called during the resolution step when it tries to inject
- *    I think I need to rethink this part, as it seems as though I should get a type def and then attempt to resolve
- *    rather than do it all up front
- */
-
-
-
 public class Injector implements IInjector {
-	protected var binder:IChildBinder;
+	protected var binder:IBinder;
 	protected var classResolver:IClassResolver;
 	private var factory:TypeDefinitionFactory;
 
-	public function getInstance(dependency:Class):Object {
+	public function getInstance(dependency:Class):* {
 		return resolveDependency(factory.getDefinitionForType(dependency), new CircularDependencyMap());
 	}
 
@@ -166,7 +155,7 @@ public class Injector implements IInjector {
 		}
 	}
 
-	public function Injector( binder:IChildBinder, classResolver:IClassResolver, factory:TypeDefinitionFactory ) {
+	public function Injector( binder:IBinder, classResolver:IClassResolver, factory:TypeDefinitionFactory ) {
 		this.binder = binder;
 		this.classResolver = classResolver;
 		this.factory = factory;

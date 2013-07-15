@@ -25,6 +25,10 @@ public class TypeDefinitionFactory {
 		var nextLevel:* = Window.window;
 		var failed:Boolean = false;
 
+		if ( qualifiedClassName.charAt(0) == "*" ) {
+			qualifiedClassName = qualifiedClassName.substr( 1 );
+		}
+
 		var path:Array = qualifiedClassName.split('.');
 
 		for (var i:int = 0; i < path.length; i++) {
@@ -45,6 +49,10 @@ public class TypeDefinitionFactory {
 	private function createEmptyDefinition(qualifiedClassName:String):Object {
 		var nextLevel:* = Window.window;
 		var neededLevel:*;
+
+		if ( qualifiedClassName.charAt(0) == "*" ) {
+			qualifiedClassName = qualifiedClassName.substr( 1 );
+		}
 
 		var path:Array = qualifiedClassName.split('.');
 

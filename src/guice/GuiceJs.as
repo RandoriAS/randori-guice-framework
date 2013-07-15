@@ -41,21 +41,26 @@ public class GuiceJs {
 		}
 
 		//We need runtime proxies for IInjector, IBinder and IClassResolver as we aren't creating the initial classes through injection
-		factory.getDefinitionForName("guice.IInjector");
-		factory.getDefinitionForName("guice.binding.IBinder");
-		factory.getDefinitionForName("guice.binding.IChildBinder");
-		factory.getDefinitionForName("guice.resolver.IClassResolver");
+		factory.getDefinitionForName( "guice.IInjector");
+		factory.getDefinitionForName( "guice.IChildInjector");
+		factory.getDefinitionForName( "guice.binding.IBinder");
+		factory.getDefinitionForName( "guice.binding.IChildBinder");
+		factory.getDefinitionForName( "guice.resolver.IClassResolver");
+		factory.getDefinitionForName( "robotlegs.flexo.command.ICommandMap");
 
-		var injector:IInjector = new Injector(binder, classResolver, factory );
-		binder.bind(Injector).toInstance(injector);
-		binder.bind(IInjector).toInstance(injector);
-		binder.bind(IBinder).toInstance(binder);
-		binder.bind(Binder).toInstance(binder);
-		binder.bind(IChildBinder).toInstance(ChildBinder);
-		binder.bind(TypeDefinitionFactory).toInstance(factory);
-		binder.bind(IClassResolver).toInstance(classResolver);
-		binder.bind(ClassResolver).toInstance(classResolver);
-		binder.bind(SynchronousClassLoader).toInstance(loader);
+		var injector:IInjector = new Injector( binder, classResolver, factory );
+		binder.bind( Injector ).toInstance( injector );
+		binder.bind( IInjector ).toInstance( injector );
+		binder.bind( IChildInjector ).to( ChildInjector );
+
+		binder.bind( IBinder ).toInstance( binder );
+		binder.bind( Binder ).toInstance( binder );
+		binder.bind( IChildBinder ).to( ChildBinder );
+
+		binder.bind( TypeDefinitionFactory ).toInstance( factory );
+		binder.bind( IClassResolver ).toInstance( classResolver );
+		binder.bind( ClassResolver ).toInstance( classResolver );
+		binder.bind( SynchronousClassLoader ).toInstance( loader );
 
 		return injector;
 	}

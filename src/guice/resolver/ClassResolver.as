@@ -21,8 +21,6 @@ import guice.loader.SynchronousClassLoader;
 import guice.reflection.TypeDefinition;
 import guice.reflection.TypeDefinitionFactory;
 
-import randori.webkit.page.Window;
-
 public class ClassResolver implements IClassResolver {
 	private var loader:SynchronousClassLoader;
 	private var factory:TypeDefinitionFactory;
@@ -35,8 +33,6 @@ public class ClassResolver implements IClassResolver {
 		var td:TypeDefinition = factory.getDefinitionForName(qualifiedClassName);
 
 		if (td.isProxy) {
-
-			Window.console.log("Resolving Proxy");
 
 			if (circularDependencyMap[ qualifiedClassName ]) {
 				throw new Error("Circular Reference While Resolving Name : " + qualifiedClassName);
@@ -90,7 +86,9 @@ public class ClassResolver implements IClassResolver {
 		var classDependencies:Vector.<String> = type.getStaticDependencies();
 
 		for ( var i:int=0; i<classDependencies.length; i++) {
-			resolveClassName(classDependencies[i], circularDependencyMap );
+			if ( classDependencies[i].charAt(0) != "*" ) {
+				resolveClassName(classDependencies[i], circularDependencyMap );
+			}
 		}
 	}
 
@@ -106,8 +104,11 @@ public class ClassResolver implements IClassResolver {
 		 */
 
 		for ( var i:int=0; i<classDependencies.length; i++) {
-			//These are runtime dependencies, therefore we should be able to resolve each in its own circular stack
-			resolveClassName(classDependencies[i], new CircularDependencyMap() );
+			//An * first identifies an interface, don't bother to load things that are interfaces
+			if ( classDependencies[i].charAt(0) != "*" ) {
+				//These are runtime dependencies, therefore we should be able to resolve each in its own circular stack
+				resolveClassName(classDependencies[i], new CircularDependencyMap() );
+			}
 		}
 	}
 

@@ -17,20 +17,12 @@
  * @author Michael Labriola <labriola@digitalprimates.net>
  */
 package guice {
-import guice.binding.IBinding;
-import guice.reflection.TypeDefinition;
-import guice.resolver.CircularDependencyMap;
 
-public interface IInjector {
-	function getInstance(dependency:Class):*;
 
-	function getInstanceByDefinition(dependencyTypeDefinition:TypeDefinition):*;
 
-	function getBinding(typeDefinition:TypeDefinition):IBinding;
 
-	function buildClass(type:Class, circularDependencyMap:CircularDependencyMap):*;
-	function buildClassFromDefinition(typeDefinition:TypeDefinition, circularDependencyMap:CircularDependencyMap):*;
-
-	function configureBinder( module:IGuiceModule ):void;
+//Just a marker interface
+public interface IChildInjector extends IInjector{
+	//function configureBinder( module:IGuiceModule ):void;
 }
 }
