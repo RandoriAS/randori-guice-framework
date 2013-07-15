@@ -34,6 +34,11 @@ public class ContextDecorator implements IBinding {
 		return Scope.Context;
 	}
 
+	public function destroy():void {
+		sourceBinding.destroy();
+		instance = null;
+	}
+
 	public function provide(injector:IInjector):* {
 		if (instance == null) {
 			instance = sourceBinding.provide(injector);

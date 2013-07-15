@@ -25,5 +25,7 @@ public interface IBinder {
 	function addBinding(abstractBinding:IBinding):void;
 
 	function bind(type:Class):BindingFactory;
+	function unbind(type:Class):void;
+	function destroy():void;
 }
 }
