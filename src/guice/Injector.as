@@ -27,23 +27,12 @@ import guice.reflection.TypeDefinitionFactory;
 import guice.resolver.CircularDependencyMap;
 import guice.resolver.IClassResolver;
 
-//Where I left off
-/**
- *
- * If I map VerticalTabs to VerticalTabs I have an issue because the type stored in the binding was still a proxy
- * If I map an interface to a type, the interface is called during the resolution step when it tries to inject
- *    I think I need to rethink this part, as it seems as though I should get a type def and then attempt to resolve
- *    rather than do it all up front
- */
-
-
-
 public class Injector implements IInjector {
 	protected var binder:IBinder;
 	protected var classResolver:IClassResolver;
 	private var factory:TypeDefinitionFactory;
 
-	public function getInstance(dependency:Class):Object {
+	public function getInstance(dependency:Class):* {
 		return resolveDependency(factory.getDefinitionForType(dependency), new CircularDependencyMap());
 	}
 
@@ -55,9 +44,13 @@ public class Injector implements IInjector {
 		return binder.getBinding(typeDefinition);
 	}
 
-	//Entry point for TypeAbstractBinding to ask for a class....
+	public function buildClass(type:Class, circularDependencyMap:CircularDependencyMap):* {
+		return buildClassFromDefinition( factory.getDefinitionForType( type ), new CircularDependencyMap() );
+	}
+
+		//Entry point for TypeAbstractBinding to ask for a class....
 	//This method does so without trying to resolve the class first, which is important if we are called from within a resolution
-	public function buildClass(typeDefinition:TypeDefinition, circularDependencyMap:CircularDependencyMap):* {
+	public function buildClassFromDefinition(typeDefinition:TypeDefinition, circularDependencyMap:CircularDependencyMap):* {
 		var instance:Object;
 
 		if (typeDefinition.builtIn) {
@@ -149,13 +142,20 @@ public class Injector implements IInjector {
 		if (abstractBinding != null) {
 			instance = abstractBinding.provide( this );
 		} else {
-			instance = buildClass( typeDefinition, circularDependencyMap );
+			instance = buildClassFromDefinition( typeDefinition, circularDependencyMap );
 		}
 
 		return instance;
 	}
 
-	public function Injector(binder:IBinder, classResolver:IClassResolver, factory:TypeDefinitionFactory ) {
+	//Used in a child injector situation to configure a binder with a module at runtime
+	public function configureBinder( module:IGuiceModule ):void {
+		if (module != null) {
+			module.configure(binder);
+		}
+	}
+
+	public function Injector( binder:IBinder, classResolver:IClassResolver, factory:TypeDefinitionFactory ) {
 		this.binder = binder;
 		this.classResolver = classResolver;
 		this.factory = factory;

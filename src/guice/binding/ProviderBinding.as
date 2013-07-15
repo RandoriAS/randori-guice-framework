@@ -22,31 +22,29 @@ import guice.binding.provider.IProvider;
 import guice.reflection.TypeDefinition;
 
 public class ProviderBinding implements IBinding{
-		private var typeDefinition:TypeDefinition;
-		private var providerTypeDefinition:TypeDefinition;
+	private var typeDefinition:TypeDefinition;
+	private var provider:IProvider;
 
-		private var provider:IProvider;
-		
-		public function getTypeName():String {
-			return typeDefinition.getClassName();
-		}
-		
-		public function getScope():int {
-			return Scope.Instance;
-		}
-		
-		public function provide(injector:IInjector):* {
-			
-			if ( provider == null ) {
-				provider = ( injector.getInstanceByDefinition(providerTypeDefinition) ) as IProvider;
-			}
-			
-			return provider.get();
-		}
-
-		public function ProviderBinding(typeDefinition:TypeDefinition, providerTypeDefinition:TypeDefinition) {
-			this.typeDefinition = typeDefinition;
-			this.providerTypeDefinition = providerTypeDefinition;
-		}
+	public function getTypeName():String {
+		return typeDefinition.getClassName();
 	}
+	
+	public function getScope():int {
+		return Scope.Instance;
+	}
+
+	public function destroy():void {
+		provider = null;
+		typeDefinition = null;
+	}
+
+	public function provide(injector:IInjector):* {
+		return provider.get();
+	}
+
+	public function ProviderBinding( typeDefinition:TypeDefinition, provider:IProvider ) {
+		this.typeDefinition = typeDefinition;
+		this.provider = provider;
+	}
+}
 }

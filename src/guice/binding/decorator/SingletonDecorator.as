@@ -22,12 +22,12 @@ import guice.binding.Scope;
 
 public class SingletonDecorator extends ContextDecorator {
 		
-		override public function getScope():int {
-			return Scope.Singleton;
-		}
-
-		public function SingletonDecorator(sourceBinding:IBinding) {
-			super(sourceBinding);
-		}
+	override public function getScope():int {
+		return Scope.Singleton;
 	}
+
+	public function SingletonDecorator(sourceBinding:IBinding) {
+		super(sourceBinding);
+	}
+}
 }

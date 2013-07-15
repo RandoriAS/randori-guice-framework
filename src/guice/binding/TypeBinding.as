@@ -36,6 +36,11 @@ public class TypeBinding implements IBinding{
 		return Scope.Instance;
 	}
 
+	public function destroy():void {
+		typeDefinition = null;
+		dependencyDefinition = null;
+	}
+
 	public function provide(injector:IInjector):* {
 		//This one is temporary to get us up and going with interfaces... we will deal with it later
 
@@ -43,7 +48,7 @@ public class TypeBinding implements IBinding{
 			this.dependencyDefinition = classResolver.resolveProxy( this.dependencyDefinition, new CircularDependencyMap() );
 		}
 
-		return injector.buildClass( dependencyDefinition, new CircularDependencyMap() );
+		return injector.buildClassFromDefinition( dependencyDefinition, new CircularDependencyMap() );
 	}
 
 	public function TypeBinding(typeDefinition:TypeDefinition, dependencyDefinition:TypeDefinition, classResolver:IClassResolver ) {

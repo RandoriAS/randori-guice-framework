@@ -22,12 +22,15 @@ import guice.reflection.TypeDefinition;
 import guice.resolver.CircularDependencyMap;
 
 public interface IInjector {
-	function getInstance(dependency:Class):Object;
+	function getInstance(dependency:Class):*;
 
 	function getInstanceByDefinition(dependencyTypeDefinition:TypeDefinition):*;
 
 	function getBinding(typeDefinition:TypeDefinition):IBinding;
 
-	function buildClass(typeDefinition:TypeDefinition, circularDependencyMap:CircularDependencyMap):*;
+	function buildClass(type:Class, circularDependencyMap:CircularDependencyMap):*;
+	function buildClassFromDefinition(typeDefinition:TypeDefinition, circularDependencyMap:CircularDependencyMap):*;
+
+	function configureBinder( module:IGuiceModule ):void;
 }
 }
