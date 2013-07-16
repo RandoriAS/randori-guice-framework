@@ -86,21 +86,11 @@ package guice.reflection {
 		}
 
 		public function getStaticDependencies():Vector.<String> {
-			if ( this.type.getStaticDependencies ) {
-				return this.type.getClassDependencies();
-			}
-
-			return new Vector.<String>();
+			return this.type.getStaticDependencies();
 		}
 
 		public function getRuntimeDependencies():Vector.<String> {
-			if ( this.type.getRuntimeDependencies ) {
-				return this.type.getRuntimeDependencies();
-			} else if ( this.type.getClassDependencies ) {
-				return this.type.getClassDependencies();
-			}
-
-			return new Vector.<String>();
+			return this.type.getRuntimeDependencies();
 		}
 
 		private function injectionPoints(injectionType:int):Vector.<InjectionPoint> {
