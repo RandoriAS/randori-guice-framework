@@ -118,7 +118,7 @@ public class ClassResolver implements IClassResolver {
 
 		var preambleExpression:String = "(^[\\W\\w]+?)" + escapedClassName;
 		var classNameExpression:String = escapedClassName + ".className = [\\w\\W]+?\\\";";
-		var dependenciesExpression:String = escapedClassName + ".getClassDependencies[\\w\\W]+?};";
+		var dependenciesExpression:String = escapedClassName + ".getStaticDependencies[\\w\\W]+?};";
 
 		var preambleResult:Array = classDefinition.match(preambleExpression);
 		var classNameResult:Array = classDefinition.match(classNameExpression);
