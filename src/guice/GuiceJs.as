@@ -46,7 +46,11 @@ public class GuiceJs {
 		factory.getDefinitionForName( "guice.binding.IBinder");
 		factory.getDefinitionForName( "guice.binding.IChildBinder");
 		factory.getDefinitionForName( "guice.resolver.IClassResolver");
+
+		//these need to move
 		factory.getDefinitionForName( "robotlegs.flexo.command.ICommandMap");
+		factory.getDefinitionForName( "robotlegs.flexo.context.IContextInitialized");
+		factory.getDefinitionForName( "robotlegs.flexo.context.IContextDestroyed");
 
 		var injector:IInjector = new Injector( binder, classResolver, factory );
 		binder.bind( Injector ).toInstance( injector );
